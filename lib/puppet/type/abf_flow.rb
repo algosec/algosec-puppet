@@ -35,7 +35,6 @@ Puppet::ResourceApi.register_type(
       type:      'Array[String[1]]',
       desc:      'List of network application names which the application flow is relevant to.',
     },
-    # TODO: Find the proper way to set this one to optional
     comment:        {
       type:      'Optional[String]',
       desc:      'Optional comment to attach to the flow.',

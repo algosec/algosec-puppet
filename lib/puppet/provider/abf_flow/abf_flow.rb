@@ -1,7 +1,7 @@
 require 'puppet/resource_api/simple_provider'
 
-# Implementation for the abf_application type using the Resource API.
-class Puppet::Provider::AbfApplication::AbfApplication < Puppet::ResourceApi::SimpleProvider
+# Implementation for the abf_flow type using the Resource API.
+class Puppet::Provider::AbfFlow::AbfFlow < Puppet::ResourceApi::SimpleProvider
   def get(_context)
     [
       {

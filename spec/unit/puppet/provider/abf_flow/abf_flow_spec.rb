@@ -1,9 +1,9 @@
 require 'spec_helper'
 
-ensure_module_defined('Puppet::Provider::AbfApplication')
-require 'puppet/provider/abf_application/abf_application'
+ensure_module_defined('Puppet::Provider::AbfFlow')
+require 'puppet/provider/abf_flow/abf_flow'
 
-RSpec.describe Puppet::Provider::AbfApplication::AbfApplication do
+RSpec.describe Puppet::Provider::AbfFlow::AbfFlow do
   subject(:provider) { described_class.new }
 
   let(:context) { instance_double('Puppet::ResourceApi::BaseContext', 'context') }

@@ -7,7 +7,7 @@ Puppet::ResourceApi.register_type(
       The connectivity for each ABF application is defined by the sum effect of the list of application flows 
         that are defined within it. Please see the abf_flow type for how-to-use documentation.
   EOS
-  features: [],
+  features: ['remote_resource'],
   title_patterns: [
     {
       pattern: %r{^(?<name>.*[^/])/(?<application>.*)$},
@@ -39,8 +39,10 @@ Puppet::ResourceApi.register_type(
     },
     services: {
       type: 'Array[String[1],1]',
-      desc: 'List of traffic services to allow in the flow. Services can be as defined on AlgoSec '\
-                    'BusinessFlow or in a proto/port format (only UDP and TCP are supported as proto. e.g. tcp/50).',
+      desc: <<DESC
+List of traffic services to allow in the flow. Services can be as defined on AlgoSec
+BusinessFlow or in a proto/port format (only UDP and TCP are supported as proto. e.g. tcp/50)
+DESC
     },
     users: {
       type: 'Optional[Array[String[1]]]',
@@ -53,6 +55,11 @@ Puppet::ResourceApi.register_type(
     comment: {
       type: 'Optional[String]',
       desc: 'Optional comment to attach to the flow.',
+    },
+    ensure: {
+      type:    'Enum[present, absent]',
+      desc:    'Whether this resource should be present or absent on the target system.',
+      default: 'present',
     },
   },
 )

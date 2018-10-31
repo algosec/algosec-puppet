@@ -3,18 +3,18 @@ require 'puppet/resource_api'
 Puppet::ResourceApi.register_type(
   name: 'abf_flow',
   docs: <<-EOS,
-      Define application flows comprising one abf_flow resource.
-      The connectivity for each ABF application is defined by the sum effect of the list of application flows 
-        that are defined within it. Please see the abf_flow type for how-to-use documentation.
+This type provides Puppet with the capabilities to manage "Application Flows" on AlgoSec BusinessFlow.
+The usage of this resources is dependent upon the resource deceleration of AlgoSec BusinessFlow Application.
+Please see how-to-use examples and the abf_application resource.
   EOS
   features: ['remote_resource'],
   title_patterns: [
     {
-      pattern: %r{^(?<name>.*[^/])/(?<application>.*)$},
+      pattern: %r{^(?<application>\w+)/(?<name>\w+)$},
       desc: 'Where the flow name and the application name are provided with a slash separator',
     },
     {
-      pattern: %r{^(?<name>.*)$},
+      pattern: %r{^(?<name>\w+)$},
       desc: 'Where only the flow name is given',
     },
   ],

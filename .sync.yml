@@ -3,7 +3,17 @@
 Gemfile:
   optional:
     ':development':
+      - gem: 'webmock'
       - gem: 'puppet-resource_api'
+#      - gem: 'rspec-rails'
       - gem: 'algosec-sdk'
+        version: '~> 1.0.1'
+        # TODO: Do I need the dependency below?
+      - gem: 'beaker-hostgenerator'
+        version: '~> 1.1.15'
 spec/spec_helper.rb:
   mock_with: ':rspec'
+  spec_overrides:
+  - "require 'webmock/rspec'"
+.travis.yml:
+  simplecov: true

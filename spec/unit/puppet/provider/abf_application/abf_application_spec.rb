@@ -17,10 +17,10 @@ RSpec.describe Puppet::Provider::AbfApplication::AbfApplication do
   end
 
   describe '#get(context)' do
-    let(:application_names) { %w(app1 app2) }
-    let(:applications_json) { application_names.map { |name| {'name' => name} } }
+    let(:application_names) { ['app1', 'app2'] }
+    let(:applications_json) { application_names.map { |name| { 'name' => name } } }
 
-    before do
+    before(:each) do
       allow(api).to receive(:get_applications).with(no_args).and_return(applications_json)
     end
 
@@ -29,17 +29,14 @@ RSpec.describe Puppet::Provider::AbfApplication::AbfApplication do
       provider.get(context)
     end
     it 'fetch applications from api' do
-      expect(provider.get(context)).to eq [
-        { name: 'app1' },
-        { name: 'app2' },
-      ]
+      expect(provider.get(context)).to eq [{ name: 'app1' }, { name: 'app2' }]
     end
   end
 
   describe '#create(context, name, should)' do
-    let(:app_name) {'app1'}
+    let(:app_name) { 'app1' }
 
-    before do
+    before(:each) do
       allow(api).to receive(:create_application)
     end
 
@@ -48,7 +45,7 @@ RSpec.describe Puppet::Provider::AbfApplication::AbfApplication do
       provider.create(context, app_name, name: app_name, ensure: 'present')
     end
     it 'uses the api to create the app' do
-      expect(api).to receive(:create_application).with(app_name).and_return({'name' => app_name})
+      expect(api).to receive(:create_application).with(app_name).and_return('name' => app_name)
       provider.create(context, app_name, name: app_name, ensure: 'present')
     end
   end
@@ -60,10 +57,10 @@ RSpec.describe Puppet::Provider::AbfApplication::AbfApplication do
   end
 
   describe '#delete(context, name, should)' do
-    let(:app_name) {'app1'}
-    let(:app_revision_id) {9999}
+    let(:app_name) { 'app1' }
+    let(:app_revision_id) { 9999 }
 
-    before do
+    before(:each) do
       allow(api).to receive(:get_app_revision_id_by_name)
       allow(api).to receive(:decommission_application)
     end

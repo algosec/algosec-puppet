@@ -12,7 +12,7 @@ RSpec.describe Puppet::Provider::AbfFlow::AbfFlow do
 
   let(:name) { 'flow-name' }
   let(:app_name) { 'application-name' }
-  let(:app_revision_id) { 8888 }
+  let(:app_revision_id) { 888 }
 
   # Since abf_flow type has two namevars, it's name is passed as a hash that include all namevars
   let(:name_hash) { { name: name, application: app_name } }
@@ -25,7 +25,7 @@ RSpec.describe Puppet::Provider::AbfFlow::AbfFlow do
 
   describe '#get(context)' do
     let(:app_name2) { 'application-name2' }
-    let(:app_revision_id2) { 1232456 }
+    let(:app_revision_id2) { 123 }
 
     # define the application json as it will be returned from the API.
     let(:app_json1) { { 'revisionID' => app_revision_id, 'name' => app_name } }
@@ -42,7 +42,7 @@ RSpec.describe Puppet::Provider::AbfFlow::AbfFlow do
         'flowType' => 'APPLICATION_FLOW',
         'sources' => [
           { 'name' => '192.168.0.0/16' },
-          { 'name' => 'HR Payroll server' }
+          { 'name' => 'HR Payroll server' },
         ],
         'destinations' => [{ 'name' => '16.47.71.62' }],
         'services' => [{ 'name' => 'HTTPS' }, 'name' => 'HTTP'],
@@ -57,7 +57,7 @@ RSpec.describe Puppet::Provider::AbfFlow::AbfFlow do
         'flowType' => 'APPLICATION_FLOW',
         'sources' => [
           { 'name' => '192.168.0.0/16' },
-          { 'name' => 'HR Payroll server' }
+          { 'name' => 'HR Payroll server' },
         ],
         'destinations' => [{ 'name' => '16.47.71.62' }],
         'services' => [{ 'name' => 'HTTPS' }, 'name' => 'HTTP'],
@@ -94,13 +94,13 @@ RSpec.describe Puppet::Provider::AbfFlow::AbfFlow do
 
     # define the application flows as will be represented by the abf_flow provider per application
     let(:flow_with_no_users_applications) do
-      -> (app_name) do
+      ->(app_name) do
         return {
           name: 'flow1',
           application: app_name,
           sources: ['192.168.0.0/16', 'HR Payroll server'],
           destinations: ['16.47.71.62'],
-          services: %w(HTTPS HTTP),
+          services: ['HTTPS', 'HTTP'],
           users: [],
           applications: [],
           comment: 'comment1',
@@ -109,7 +109,7 @@ RSpec.describe Puppet::Provider::AbfFlow::AbfFlow do
       end
     end
     let(:flow_with_users_applications) do
-      -> (app_name) do
+      ->(app_name) do
         return {
           name: 'flow3',
           application: app_name,
@@ -136,102 +136,90 @@ RSpec.describe Puppet::Provider::AbfFlow::AbfFlow do
       it 'filters out non application flows' do
         expect(api).to receive(:get_applications).with(no_args).and_return([app_json1])
         expect(api).to receive(:get_application_flows).with(app_revision_id).and_return([non_application_flow_json])
-        expect(provider.get(context)).to eq ([])
+        expect(provider.get(context)).to eq []
       end
       it 'handles missing users and applications fields' do
         expect(api).to receive(:get_applications).with(no_args).and_return([app_json1])
-        expect(api).to receive(:get_application_flows).with(app_revision_id).and_return(
-          [flow_json_with_no_users_applications]
-        )
-        expect(provider.get(context)).to eq ([flow_with_no_users_applications[app_name]])
+        expect(api).to receive(:get_application_flows).with(app_revision_id).and_return([flow_json_with_no_users_applications])
+        expect(provider.get(context)).to eq [flow_with_no_users_applications[app_name]]
       end
       it 'handles users and applications fields set as "any"' do
         expect(api).to receive(:get_applications).with(no_args).and_return([app_json1])
-        expect(api).to receive(:get_application_flows).with(app_revision_id).and_return(
-          [flow_json_with_any_users_applications]
-        )
+        expect(api).to receive(:get_application_flows).with(app_revision_id).and_return([flow_json_with_any_users_applications])
         # When the users and applications are set to any, it is same as if they were not defined at all
-        expect(provider.get(context)).to eq ([flow_with_no_users_applications[app_name]])
+        expect(provider.get(context)).to eq [flow_with_no_users_applications[app_name]]
       end
       it 'handles defined users and applications fields' do
         expect(api).to receive(:get_applications).with(no_args).and_return([app_json1])
-        expect(api).to receive(:get_application_flows).with(app_revision_id).and_return(
-          [flow_json_with_users_applications]
-        )
+        expect(api).to receive(:get_application_flows).with(app_revision_id).and_return([flow_json_with_users_applications])
         # When the users and applications are set to any, it is same as if they were not defined at all
-        expect(provider.get(context)).to eq ([flow_with_users_applications[app_name]])
+        expect(provider.get(context)).to eq [flow_with_users_applications[app_name]]
       end
 
       it 'fetch and combine flows from multiple apps' do
         expect(api).to receive(:get_applications).with(no_args).and_return([app_json1, app_json2])
-        expect(api).to receive(:get_application_flows).with(app_revision_id).and_return(
-          [flow_json_with_users_applications]
-        )
-        expect(api).to receive(:get_application_flows).with(app_revision_id2).and_return(
-          [flow_json_with_no_users_applications]
-        )
+        expect(api).to receive(:get_application_flows).with(app_revision_id).and_return([flow_json_with_users_applications])
+        expect(api).to receive(:get_application_flows).with(app_revision_id2).and_return([flow_json_with_no_users_applications])
         # When the users and applications are set to any, it is same as if they were not defined at all
-        expect(provider.get(context)).to eq ([
-          flow_with_users_applications[app_name],
-          flow_with_no_users_applications[app_name2],
-        ])
+        expect(provider.get(context)).to eq([flow_with_users_applications[app_name], flow_with_no_users_applications[app_name2]])
       end
     end
   end
 
   describe 'create(context, name_hash, should)' do
-    let(:should) do
+    let(:should_hash) do
       {
-        sources: %w(source1, source2),
-        destinations: %w(dest1, dest2),
-        services: %w(service1, service2),
-        users: %w(user1, user2),
-        applications: %w(app1, app2),
-        comment: 'some comment here'
+        sources: ['source1', 'source2'],
+        destinations: ['dest1', 'dest2'],
+        services: ['service1', 'service2'],
+        users: ['user1', 'user2'],
+        applications: ['app1', 'app2'],
+        comment: 'some comment here',
       }
     end
     let(:required_only_should) do
       {
-        sources: %w(source1, source2),
-        destinations: %w(dest1, dest2),
-        services: %w(service1, service2)
+        sources: ['source1', 'source2'],
+        destinations: ['dest1', 'dest2'],
+        services: ['service1', 'service2'],
       }
     end
-    before do
+
+    before(:each) do
       allow(api).to receive(:get_app_revision_id_by_name)
       allow(api).to receive(:create_application_flow)
     end
 
     it 'logs an update notice' do
       expect(context).to receive(:notice).with(%r{\ACreating application flow '#{app_name}/#{name}'})
-      provider.create(context, name_hash, should)
+      provider.create(context, name_hash, should_hash)
     end
     it 'creates the flow only if should is valid' do
       expect(api).to receive(:get_app_revision_id_by_name).with(app_name).and_return(app_revision_id)
       expect(api).to receive(:create_application_flow).with(
         app_revision_id,
         name,
-        %w(source1, source2),
-        %w(dest1, dest2),
-        %w(service1, service2),
-        %w(user1, user2),
-        %w(app1, app2),
-        'some comment here'
+        ['source1', 'source2'],
+        ['dest1', 'dest2'],
+        ['service1', 'service2'],
+        ['user1', 'user2'],
+        ['app1', 'app2'],
+        'some comment here',
       )
 
-      provider.create(context, name_hash, should)
+      provider.create(context, name_hash, should_hash)
     end
     it 'creates flow when no optional values given' do
       expect(api).to receive(:get_app_revision_id_by_name).with(app_name).and_return(app_revision_id)
       expect(api).to receive(:create_application_flow).with(
         app_revision_id,
         name,
-        %w[source1, source2],
-        %w[dest1, dest2],
-        %w[service1, service2],
+        ['source1', 'source2'],
+        ['dest1', 'dest2'],
+        ['service1', 'service2'],
         [],
         [],
-        ''
+        '',
       )
 
       provider.create(context, name_hash, required_only_should)
@@ -239,35 +227,35 @@ RSpec.describe Puppet::Provider::AbfFlow::AbfFlow do
   end
 
   describe 'update(context, name_hash, should)' do
-    let(:should) { { name: name, ensure: 'present' } }
+    let(:should_hash) { { name: name, ensure: 'present' } }
 
-    before do
-      allow(provider).to receive(:delete)
-      allow(provider).to receive(:create)
+    before(:each) do
+      allow(provider).to receive(:delete) # rubocop:disable RSpec/SubjectStub
+      allow(provider).to receive(:create) # rubocop:disable RSpec/SubjectStub
     end
     it 'logs a notice' do
       expect(context).to receive(:notice).with(%r{\AUpdating application flow '#{app_name}/#{name}'})
-      provider.update(context, name_hash, should)
+      provider.update(context, name_hash, should_hash)
     end
     # it 'avoids deletion/creation if should is not valid' do
     #   expect(provider).to receive(:validate_should).with(should).and_raise(Puppet::ResourceError, 'should not valid')
     #   expect(provider).not_to receive(:delete)
     #   expect(provider).not_to receive(:create)
     #
-    #   expect {provider.update(context, name_hash, should)}.to raise_error Puppet::ResourceError
+    #   expect {provider.update(context, name_hash, should_hash)}.to raise_error Puppet::ResourceError
     # end
     it 'uses delete and only then the create instance methods' do
-      expect(provider).to receive(:delete).with(context, name_hash).ordered
-      expect(provider).to receive(:create).with(context, name_hash, should).ordered
+      expect(provider).to receive(:delete).with(context, name_hash).ordered # rubocop:disable RSpec/SubjectStub
+      expect(provider).to receive(:create).with(context, name_hash, should_hash).ordered # rubocop:disable RSpec/SubjectStub
 
-      provider.update(context, name_hash, should)
+      provider.update(context, name_hash, should_hash)
     end
   end
 
   describe 'delete(context, name_hash, should)' do
-    let(:flow_id) { 999999 }
+    let(:flow_id) { 999 }
 
-    before do
+    before(:each) do
       allow(api).to receive(:get_app_revision_id_by_name)
       allow(api).to receive(:get_application_flow_by_name).and_return('flowID' => flow_id)
       allow(api).to receive(:delete_flow_by_id)
@@ -278,9 +266,7 @@ RSpec.describe Puppet::Provider::AbfFlow::AbfFlow do
     end
     it 'deletes the resource' do
       expect(api).to receive(:get_app_revision_id_by_name).with(app_name).and_return(app_revision_id)
-      expect(api).to receive(:get_application_flow_by_name).with(app_revision_id, name).and_return(
-        { 'flowID' => flow_id }
-      )
+      expect(api).to receive(:get_application_flow_by_name).with(app_revision_id, name).and_return('flowID' => flow_id)
       expect(api).to receive(:delete_flow_by_id).with(app_revision_id, flow_id)
       provider.delete(context, name_hash)
     end

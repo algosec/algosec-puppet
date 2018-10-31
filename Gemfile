@@ -28,7 +28,7 @@ group :development do
   gem "puppet-module-win-dev-r#{minor_version}",       require: false, platforms: [:mswin, :mingw, :x64_mingw]
   gem "webmock",                                       require: false
   gem "puppet-resource_api",                           require: false
-  gem "algosec-sdk", '~> 1.0.1',                       require: false
+  gem "algosec-sdk", '~> 1.1.0',                       require: false
   gem "beaker-hostgenerator", '~> 1.1.15',             require: false
 end
 

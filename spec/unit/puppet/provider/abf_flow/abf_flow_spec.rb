@@ -12,14 +12,19 @@ RSpec.describe Puppet::Provider::AbfFlow::AbfFlow do
 
   let(:name) { 'flow-name' }
   let(:app_name) { 'application-name' }
+  let(:full_flow_name) { "#{app_name}/#{name}" }
   let(:app_revision_id) { 888 }
+  let(:unmanaged_applications) { [] }
 
   # Since abf_flow type has two namevars, it's name is passed as a hash that include all namevars
   let(:name_hash) { { name: name, application: app_name } }
 
+
   before(:each) do
     allow(context).to receive(:device).with(no_args).and_return(device)
     allow(device).to receive(:api).with(no_args).and_return(api)
+    allow(device).to receive(:managed_application?).and_return(true)
+    allow(device).to receive(:managed_application?).with(one_of(unmanaged_applications)).and_return(false)
     allow(context).to receive(:notice)
   end
 
@@ -161,7 +166,17 @@ RSpec.describe Puppet::Provider::AbfFlow::AbfFlow do
         expect(api).to receive(:get_application_flows).with(app_revision_id).and_return([flow_json_with_users_applications])
         expect(api).to receive(:get_application_flows).with(app_revision_id2).and_return([flow_json_with_no_users_applications])
         # When the users and applications are set to any, it is same as if they were not defined at all
-        expect(provider.get(context)).to eq([flow_with_users_applications[app_name], flow_with_no_users_applications[app_name2]])
+        expect(provider.get(context)).to eq [flow_with_users_applications[app_name], flow_with_no_users_applications[app_name2]]
+      end
+    end
+    context 'when an application is not managed' do
+      let(:unmanaged_applications) { [app_name2] }
+
+      it "doesn't return it's flows" do
+        expect(api).to receive(:get_applications).with(no_args).and_return([app_json1, app_json2])
+        expect(api).to receive(:get_application_flows).with(app_revision_id).and_return([flow_json_with_users_applications])
+        # The flows are returned only for the managed app
+        expect(provider.get(context)).to eq [flow_with_users_applications[app_name]]
       end
     end
   end
@@ -224,6 +239,13 @@ RSpec.describe Puppet::Provider::AbfFlow::AbfFlow do
 
       provider.create(context, name_hash, required_only_should)
     end
+    context 'when an application is not managed' do
+      let(:unmanaged_applications) { [app_name] }
+
+      it 'refuses creation of flows within it' do
+        expect { provider.create(context, name_hash, should_hash) }.to raise_error("Creation cancelled for flow of an unmanaged application: #{full_flow_name}")
+      end
+    end
   end
 
   describe 'update(context, name_hash, should)' do
@@ -237,18 +259,18 @@ RSpec.describe Puppet::Provider::AbfFlow::AbfFlow do
       expect(context).to receive(:notice).with(%r{\AUpdating application flow '#{app_name}/#{name}'})
       provider.update(context, name_hash, should_hash)
     end
-    # it 'avoids deletion/creation if should is not valid' do
-    #   expect(provider).to receive(:validate_should).with(should).and_raise(Puppet::ResourceError, 'should not valid')
-    #   expect(provider).not_to receive(:delete)
-    #   expect(provider).not_to receive(:create)
-    #
-    #   expect {provider.update(context, name_hash, should_hash)}.to raise_error Puppet::ResourceError
-    # end
     it 'uses delete and only then the create instance methods' do
       expect(provider).to receive(:delete).with(context, name_hash).ordered # rubocop:disable RSpec/SubjectStub
       expect(provider).to receive(:create).with(context, name_hash, should_hash).ordered # rubocop:disable RSpec/SubjectStub
 
       provider.update(context, name_hash, should_hash)
+    end
+    context 'when an application is not managed' do
+      let(:unmanaged_applications) { [app_name] }
+
+      it 'refuses update of any of its flows' do
+        expect { provider.update(context, name_hash, should_hash) }.to raise_error("Update cancelled for flow of an unmanaged application: #{full_flow_name}")
+      end
     end
   end
 
@@ -269,6 +291,13 @@ RSpec.describe Puppet::Provider::AbfFlow::AbfFlow do
       expect(api).to receive(:get_application_flow_by_name).with(app_revision_id, name).and_return('flowID' => flow_id)
       expect(api).to receive(:delete_flow_by_id).with(app_revision_id, flow_id)
       provider.delete(context, name_hash)
+    end
+    context 'when an application is not managed' do
+      let(:unmanaged_applications) { [app_name] }
+
+      it 'refuses deletion of any of its flows' do
+        expect { provider.delete(context, name_hash) }.to raise_error("Deletion cancelled for flow of an unmanaged application: #{full_flow_name}")
+      end
     end
   end
 end

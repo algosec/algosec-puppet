@@ -6,10 +6,13 @@ class Puppet::Provider::AbfApplication::AbfApplication < Puppet::ResourceApi::Si
     context.notice('Get all ABF Applications')
     applications = context.device.api.get_applications
     # Strip all keys but the application name
-    applications.map { |application| { name: application['name'] } }
+    applications.map do |application| {
+      name: application['name'] } if context.device.managed_application?(application['name'])
+    end.compact
   end
 
   def create(context, name, should)
+    raise Puppet::ResourceError, "Creation cancelled for unmanaged application #{name}" unless context.device.managed_application?(name)
     context.notice("Creating '#{name}' with #{should.inspect}")
     # TODO: Support all of hte application attributes (other than name) when the AlgoSec ABF API implements PUT
     # TODO: for abf applications
@@ -22,6 +25,7 @@ class Puppet::Provider::AbfApplication::AbfApplication < Puppet::ResourceApi::Si
   # end
 
   def delete(context, name)
+    raise Puppet::ResourceError, "Deletion cancelled for unmanaged application #{name}" unless context.device.managed_application?(name)
     context.notice("Decommissioning '#{name}'")
     app_revision_id = context.device.api.get_app_revision_id_by_name(name)
     context.device.api.decommission_application(app_revision_id)

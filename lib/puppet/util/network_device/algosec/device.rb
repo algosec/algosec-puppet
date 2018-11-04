@@ -15,6 +15,12 @@ module Puppet::Util::NetworkDevice::Algosec
       super
     end
 
+    def managed_application?(app_name)
+      # all applications are managed if no applications set in config
+      return true if config.fetch('applications', []) == []
+      config['applications'].include?(app_name)
+    end
+
     def api
       return @api if @api
       @api = ALGOSEC_SDK::Client.new(config)

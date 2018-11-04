@@ -7,40 +7,45 @@ class Puppet::Provider::AbfFlow::AbfFlow < Puppet::ResourceApi::SimpleProvider
 
     # For each available application
     context.device.api.get_applications.map { |app_json|
-      # Convert the API flow into the flow as it is expected by puppet
-      context.device.api.get_application_flows(app_json['revisionID']).map { |flow_json|
-        # Skip non application flows
-        if flow_json['flowType'] != 'APPLICATION_FLOW'
-          nil
-        else
-          # First fetch all the required fields
-          flow = {
-            ensure: 'present',
-            name: flow_json['name'],
-            application: app_json['name'],
-            sources: flow_json['sources'].map { |source| source['name'] },
-            destinations: flow_json['destinations'].map { |dest| dest['name'] },
-            services: flow_json['services'].map { |service| service['name'] },
-            comment: flow_json.fetch('comment', ''),
-            users: [],
-            applications: [],
-          }
-          # Now populate the optional fields
-          if flow_json['networkUsers']
-            flow[:users] = (flow_json['networkUsers'].map { |user| user['name'] if user['id'] != 0 }).compact
-          end
+      if context.device.managed_application?(app_json['name'])
+        # Convert the API flow into the flow as it is expected by puppet
+        context.device.api.get_application_flows(app_json['revisionID']).map { |flow_json|
+          # Skip non application flows
+          if flow_json['flowType'] != 'APPLICATION_FLOW'
+            nil
+          else
+            # First fetch all the required fields
+            flow = {
+              ensure: 'present',
+              name: flow_json['name'],
+              application: app_json['name'],
+              sources: flow_json['sources'].map { |source| source['name'] },
+              destinations: flow_json['destinations'].map { |dest| dest['name'] },
+              services: flow_json['services'].map { |service| service['name'] },
+              comment: flow_json.fetch('comment', ''),
+              users: [],
+              applications: [],
+            }
+            # Now populate the optional fields
+            if flow_json['networkUsers']
+              flow[:users] = (flow_json['networkUsers'].map { |user| user['name'] if user['id'] != 0 }).compact
+            end
 
-          if flow_json['networkApplications']
-            flow[:applications] = (flow_json['networkApplications'].map { |app| app['name'] if app['revisionID'] != 0 }).compact
+            if flow_json['networkApplications']
+              flow[:applications] = (flow_json['networkApplications'].map { |app| app['name'] if app['revisionID'] != 0 }).compact
+            end
+            flow
           end
-          flow
-        end
-        # Use .compact to remove all flows that were filtered out
-      }.compact
-    }.flatten
+          # Use .compact to remove all flows that were filtered out
+        }.compact
+      else
+        nil
+      end
+    }.compact.flatten
   end
 
   def create(context, name_hash, should)
+    raise Puppet::ResourceError, "Creation cancelled for flow of an unmanaged application: #{name_hash[:application]}/#{name_hash[:name]}" unless context.device.managed_application?(name_hash[:application])
     context.notice("Creating application flow '#{name_hash[:application]}/#{name_hash[:name]}' with #{should.inspect}")
     # validate_should(should)
     app_revision_id = context.device.api.get_app_revision_id_by_name(name_hash[:application])
@@ -57,6 +62,7 @@ class Puppet::Provider::AbfFlow::AbfFlow < Puppet::ResourceApi::SimpleProvider
   end
 
   def update(context, name_hash, should)
+    raise Puppet::ResourceError, "Update cancelled for flow of an unmanaged application: #{name_hash[:application]}/#{name_hash[:name]}" unless context.device.managed_application?(name_hash[:application])
     # Currently PUT is not implemented for flows so we simply delete and re-create
     context.notice("Updating application flow '#{name_hash[:application]}/#{name_hash[:name]}' with #{should.inspect}")
     # validate_should(should)
@@ -65,6 +71,7 @@ class Puppet::Provider::AbfFlow::AbfFlow < Puppet::ResourceApi::SimpleProvider
   end
 
   def delete(context, name_hash)
+    raise Puppet::ResourceError, "Deletion cancelled for flow of an unmanaged application: #{name_hash[:application]}/#{name_hash[:name]}" unless context.device.managed_application?(name_hash[:application])
     context.notice("Deleting application flow '#{name_hash[:application]}/#{name_hash[:name]}'")
     app_revision_id = context.device.api.get_app_revision_id_by_name(name_hash[:application])
     flow_id = context.device.api.get_application_flow_by_name(app_revision_id, name_hash[:name])['flowID']

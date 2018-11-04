@@ -45,8 +45,8 @@ class Puppet::Provider::AbfFlow::AbfFlow < Puppet::ResourceApi::SimpleProvider
   end
 
   def create(context, name_hash, should)
-    raise Puppet::ResourceError, "Creation cancelled for flow of an unmanaged application: #{name_hash[:application]}/#{name_hash[:name]}" unless context.device.managed_application?(name_hash[:application])
-    context.notice("Creating application flow '#{name_hash[:application]}/#{name_hash[:name]}' with #{should.inspect}")
+    raise Puppet::ResourceError, "Creation cancelled for flow of an unmanaged application: #{name_from_hash(name_hash)}" unless context.device.managed_application?(name_hash[:application])
+    context.notice("Creating application flow '#{name_from_hash(name_hash)}' with #{should.inspect}")
     # validate_should(should)
     app_revision_id = context.device.api.get_app_revision_id_by_name(name_hash[:application])
     context.device.api.create_application_flow(
@@ -62,19 +62,25 @@ class Puppet::Provider::AbfFlow::AbfFlow < Puppet::ResourceApi::SimpleProvider
   end
 
   def update(context, name_hash, should)
-    raise Puppet::ResourceError, "Update cancelled for flow of an unmanaged application: #{name_hash[:application]}/#{name_hash[:name]}" unless context.device.managed_application?(name_hash[:application])
+    raise Puppet::ResourceError, "Update cancelled for flow of an unmanaged application: #{name_from_hash(name_hash)}" unless context.device.managed_application?(name_hash[:application])
     # Currently PUT is not implemented for flows so we simply delete and re-create
-    context.notice("Updating application flow '#{name_hash[:application]}/#{name_hash[:name]}' with #{should.inspect}")
+    context.notice("Updating application flow '#{name_from_hash(name_hash)}' with #{should.inspect}")
     # validate_should(should)
     delete(context, name_hash)
     create(context, name_hash, should)
   end
 
   def delete(context, name_hash)
-    raise Puppet::ResourceError, "Deletion cancelled for flow of an unmanaged application: #{name_hash[:application]}/#{name_hash[:name]}" unless context.device.managed_application?(name_hash[:application])
-    context.notice("Deleting application flow '#{name_hash[:application]}/#{name_hash[:name]}'")
+    raise Puppet::ResourceError, "Deletion cancelled for flow of an unmanaged application: #{name_from_hash(name_hash)}" unless context.device.managed_application?(name_hash[:application])
+    context.notice("Deleting application flow '#{name_from_hash(name_hash)}'")
     app_revision_id = context.device.api.get_app_revision_id_by_name(name_hash[:application])
     flow_id = context.device.api.get_application_flow_by_name(app_revision_id, name_hash[:name])['flowID']
     context.device.api.delete_flow_by_id(app_revision_id, flow_id)
+  end
+
+  private
+
+  def name_from_hash(name_hash)
+    "#{name_hash[:application]}/#{name_hash[:name]}"
   end
 end

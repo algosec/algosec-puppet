@@ -20,7 +20,7 @@ class Puppet::Provider::AbfApplication::AbfApplication < Puppet::ResourceApi::Si
   end
 
   # def update(context, name, should)
-  #   # TODO: Not needed currently as the only attribute of applications is name.
+  #   # TODO: Not needed currently as the only attribute of applications is its name.
   #   # TODO: This method will be implemented when ABF API will implement the PUT method for applications
   # end
 

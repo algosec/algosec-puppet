@@ -10,11 +10,11 @@ Please see how-to-use examples and the abf_application resource.
   features: ['remote_resource'],
   title_patterns: [
     {
-      pattern: %r{^(?<application>\w+)/(?<name>\w+)$},
+      pattern: %r{^(?<application>[\w ]+)/(?<name>[\w ]+)$},
       desc: 'Where the flow name and the application name are provided with a slash separator',
     },
     {
-      pattern: %r{^(?<name>\w+)$},
+      pattern: %r{^(?<name>[\w ]+)$},
       desc: 'Where only the flow name is given',
     },
   ],

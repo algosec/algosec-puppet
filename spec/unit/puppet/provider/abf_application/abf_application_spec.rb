@@ -6,6 +6,7 @@ require 'puppet/provider/abf_application/abf_application'
 
 RSpec.describe Puppet::Provider::AbfApplication::AbfApplication do
   subject(:provider) { described_class.new }
+
   let(:unmanaged_applications) { [] }
   let(:context) { instance_double('Puppet::ResourceApi::BaseContext', 'context') }
   let(:device) { instance_double('Puppet::Util::NetworkDevice::Algosec::Device', 'device') }
@@ -60,8 +61,9 @@ RSpec.describe Puppet::Provider::AbfApplication::AbfApplication do
     end
     context 'when an application is not managed' do
       let(:unmanaged_applications) { ['app2'] }
+
       it 'refuses to create it' do
-        expect { provider.create(context, 'app2', name: 'app2') }.to raise_error("Creation cancelled for unmanaged application app2")
+        expect { provider.create(context, 'app2', name: 'app2') }.to raise_error('Creation cancelled for unmanaged application app2')
       end
     end
   end
@@ -94,6 +96,7 @@ RSpec.describe Puppet::Provider::AbfApplication::AbfApplication do
 
     context 'when an application is not managed' do
       let(:unmanaged_applications) { [app_name] }
+
       it 'refuses to delete it' do
         expect { provider.delete(context, app_name) }.to raise_error("Deletion cancelled for unmanaged application #{app_name}")
       end

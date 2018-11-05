@@ -12,7 +12,8 @@ module Puppet::Util::NetworkDevice::Algosec
       raise Puppet::ResourceError, 'The port attribute in the configuration is not an integer' if super.key?('port') && super['port'] !~ %r{\A[0-9]+\Z}
       raise Puppet::ResourceError, 'Could not find user/password in the configuration' unless super.key?('user') && super.key?('password')
       raise Puppet::ResourceError, 'ssl_enabled option in configuration is optional and must be boolean if it exists' unless !super.key?('ssl_enabled') || [true, false].include?(super['ssl_enabled'])
-      raise Puppet::ResourceError, 'Provided managed applications must be an array of strings if it exists' unless !super.key?('managed_applications') || super['managed_applications'].all? { |x| x.is_a? String}
+      raise Puppet::ResourceError, 'Provided managed applications must be an array of strings if it exists' unless
+        !super.key?('managed_applications') || super['managed_applications'].all? { |x| x.is_a? String }
       super
     end
 
@@ -24,7 +25,7 @@ module Puppet::Util::NetworkDevice::Algosec
 
     def outstanding_drafts?
       api.get_applications.each do |app_json|
-        if managed_application?(app_json['name']) && app_json.fetch('revisionStatus') === 'Draft'
+        if managed_application?(app_json['name']) && app_json.fetch('revisionStatus') == 'Draft'
           Puppet::Util::Log.log_func("Outstanding application draft found for: #{app_json['name']}", :info, [])
           return true
         end
@@ -34,7 +35,7 @@ module Puppet::Util::NetworkDevice::Algosec
 
     def apply_application_drafts
       api.get_applications.each do |app_json|
-        if managed_application?(app_json['name']) && app_json.fetch('revisionStatus') === 'Draft'
+        if managed_application?(app_json['name']) && app_json.fetch('revisionStatus') == 'Draft'
           api.apply_application_draft(app_json['revisionID'])
           Puppet::Util::Log.log_func("Application draft applied for: #{app_json['name']}", :info, [])
         end

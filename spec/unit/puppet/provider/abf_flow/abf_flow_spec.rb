@@ -19,7 +19,6 @@ RSpec.describe Puppet::Provider::AbfFlow::AbfFlow do
   # Since abf_flow type has two namevars, it's name is passed as a hash that include all namevars
   let(:name_hash) { { name: name, application: app_name } }
 
-
   before(:each) do
     allow(context).to receive(:device).with(no_args).and_return(device)
     allow(device).to receive(:api).with(no_args).and_return(api)

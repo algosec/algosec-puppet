@@ -8,36 +8,7 @@ class Puppet::Provider::AbfFlow::AbfFlow < Puppet::ResourceApi::SimpleProvider
     # For each available application
     context.device.api.get_applications.map { |app_json|
       if context.device.managed_application?(app_json['name'])
-        # Convert the API flow into the flow as it is expected by puppet
-        context.device.api.get_application_flows(app_json['revisionID']).map { |flow_json|
-          # Skip non application flows
-          if flow_json['flowType'] != 'APPLICATION_FLOW'
-            nil
-          else
-            # First fetch all the required fields
-            flow = {
-              ensure: 'present',
-              name: flow_json['name'],
-              application: app_json['name'],
-              sources: flow_json['sources'].map { |source| source['name'] },
-              destinations: flow_json['destinations'].map { |dest| dest['name'] },
-              services: flow_json['services'].map { |service| service['name'] },
-              comment: flow_json.fetch('comment', ''),
-              users: [],
-              applications: [],
-            }
-            # Now populate the optional fields
-            if flow_json['networkUsers']
-              flow[:users] = (flow_json['networkUsers'].map { |user| user['name'] if user['id'] != 0 }).compact
-            end
-
-            if flow_json['networkApplications']
-              flow[:applications] = (flow_json['networkApplications'].map { |app| app['name'] if app['revisionID'] != 0 }).compact
-            end
-            flow
-          end
-          # Use .compact to remove all flows that were filtered out
-        }.compact
+        get_application_flows(context, app_json)
       else
         nil
       end
@@ -79,6 +50,39 @@ class Puppet::Provider::AbfFlow::AbfFlow < Puppet::ResourceApi::SimpleProvider
   end
 
   private
+
+  def get_application_flows(context, app_json)
+    # Convert the API flow into the flow as it is expected by puppet
+    context.device.api.get_application_flows(app_json['revisionID']).map { |flow_json|
+      # Skip non application flows
+      if flow_json['flowType'] != 'APPLICATION_FLOW'
+        nil
+      else
+        # First fetch all the required fields
+        flow = {
+          ensure: 'present',
+          name: flow_json['name'],
+          application: app_json['name'],
+          sources: flow_json['sources'].map { |source| source['name'] },
+          destinations: flow_json['destinations'].map { |dest| dest['name'] },
+          services: flow_json['services'].map { |service| service['name'] },
+          comment: flow_json.fetch('comment', ''),
+          users: [],
+          applications: [],
+        }
+        # Now populate the optional fields
+        if flow_json['networkUsers']
+          flow[:users] = (flow_json['networkUsers'].map { |user| user['name'] if user['id'] != 0 }).compact
+        end
+
+        if flow_json['networkApplications']
+          flow[:applications] = (flow_json['networkApplications'].map { |app| app['name'] if app['revisionID'] != 0 }).compact
+        end
+        flow
+      end
+      # Use .compact to remove all flows that were filtered out
+    }.compact
+  end
 
   def name_from_hash(name_hash)
     "#{name_hash[:application]}/#{name_hash[:name]}"

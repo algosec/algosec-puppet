@@ -22,4 +22,3 @@ Puppet::ResourceApi.register_type(
     },
   },
 )
-

@@ -6,9 +6,7 @@ class Puppet::Provider::AbfApplication::AbfApplication < Puppet::ResourceApi::Si
     context.notice('Get all ABF Applications')
     applications = context.device.api.get_applications
     # Strip all keys but the application name
-    applications.map do |application| {
-      name: application['name'] } if context.device.managed_application?(application['name'])
-    end.compact
+    applications.map { |application| { name: application['name'] } if context.device.managed_application?(application['name']) }.compact
   end
 
   def create(context, name, should)

@@ -19,24 +19,14 @@ RSpec.describe Puppet::Provider::AbfApplyDraft::AbfApplyDraft do
       let(:outstanding_drafts) { true }
 
       it do
-        expect(provider.get(context)).to eq [
-                                              {
-                                                name: 'apply',
-                                                apply: false,
-                                              },
-                                            ]
+        expect(provider.get(context)).to eq [{ name: 'apply', apply: false }]
       end
     end
     context 'when there are no outstanding drafts' do
       let(:outstanding_drafts) { false }
 
       it do
-        expect(provider.get(context)).to eq [
-                                              {
-                                                name: 'apply',
-                                                apply: true,
-                                              },
-                                            ]
+        expect(provider.get(context)).to eq [{ name: 'apply', apply: true }]
       end
     end
   end

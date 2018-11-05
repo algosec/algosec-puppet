@@ -48,7 +48,7 @@ RSpec.describe Puppet::Util::NetworkDevice::Algosec do
         [
           'app1,app2,app3',
           [1, 2, 3],
-          123456,
+          123,
           { 'some' => 'object' },
         ].each do |managed_applications|
           let(:managed_applications) { managed_applications }
@@ -126,6 +126,7 @@ RSpec.describe Puppet::Util::NetworkDevice::Algosec do
             }
           end
         end
+
         it 'returns true when there are outstanding drafts' do
           expect(api).to receive(:get_applications).and_return([draft_app_json['app1'], active_app_json['app2']])
           expect(device.outstanding_drafts?).to eq true
@@ -162,6 +163,7 @@ RSpec.describe Puppet::Util::NetworkDevice::Algosec do
             }
           end
         end
+
         it 'applies draft only when a draft is outstanding' do
           expect(api).to receive(:get_applications).and_return([draft_app_json['app1'], active_app_json['app2']])
           expect(api).to receive(:apply_application_draft).once.with(368)

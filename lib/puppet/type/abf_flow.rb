@@ -57,9 +57,12 @@ DESC
       desc: 'Optional comment to attach to the flow.',
     },
     ensure: {
-      type:    'Enum[present, absent]',
-      desc:    'Whether this resource should be present or absent on the target system.',
+      type: 'Enum[present, absent]',
+      desc: 'Whether this resource should be present or absent on the target system.',
       default: 'present',
     },
+  },
+  autobefore: {
+    abf_apply_draft: 'apply',
   },
 )

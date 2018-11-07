@@ -7,14 +7,14 @@ This type provides Puppet with the capabilities to manage "Application Flows" on
 The usage of this resources is dependent upon the resource deceleration of AlgoSec BusinessFlow Application.
 Please see how-to-use examples and the abf_application resource.
   EOS
-  features: ['remote_resource'],
+  features: ['remote_resource', 'canonicalize'],
   title_patterns: [
     {
-      pattern: %r{^(?<application>[\w ]+)/(?<name>[\w ]+)$},
+      pattern: %r{^(?<application>.+)/(?<name>.+)$},
       desc: 'Where the flow name and the application name are provided with a slash separator',
     },
     {
-      pattern: %r{^(?<name>[\w ]+)$},
+      pattern: %r{^(?<name>.+)$},
       desc: 'Where only the flow name is given',
     },
   ],

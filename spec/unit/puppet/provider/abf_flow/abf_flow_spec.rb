@@ -28,13 +28,6 @@ RSpec.describe Puppet::Provider::AbfFlow::AbfFlow do
   end
 
   describe '#get(context)' do
-    let(:app_name2) { 'application-name2' }
-    let(:app_revision_id2) { 123 }
-
-    # define the application json as it will be returned from the API.
-    let(:app_json1) { { 'revisionID' => app_revision_id, 'name' => app_name } }
-    let(:app_json2) { { 'revisionID' => app_revision_id2, 'name' => app_name2 } }
-
     # JSON Objects that mimics the original API json results returned from the API
     let(:flow_json_with_no_users_applications) do
       # This flow represent a possible ABF setting were the applications and users will not be present in the
@@ -95,6 +88,28 @@ RSpec.describe Puppet::Provider::AbfFlow::AbfFlow do
         'services' => [{ 'name' => 'udp/501' }],
       }
     end
+    let(:unsorted_flow_json) do
+      # This flow is used to demonstrate that list fields are sorted for idempotency purposes
+      {
+        'flowID' => 1396,
+        'name' => 'flow',
+        'comment' => 'comment',
+        'flowType' => 'APPLICATION_FLOW',
+        'sources' => [{ 'name' => 'source3' }, { 'name' => 'source2' }, { 'name' => 'source1' }],
+        'destinations' => [{ 'name' => 'dest3' }, { 'name' => 'dest2' }, { 'name' => 'dest1' }],
+        'services' => [{ 'name' => 'service3' }, { 'name' => 'service2' }, { 'name' => 'service1' }],
+        'networkApplications' => [
+          { 'revisionID' => 3, 'name' => 'app3' },
+          { 'revisionID' => 2, 'name' => 'app2' },
+          { 'revisionID' => 1, 'name' => 'app1' },
+        ],
+        'networkUsers' => [
+          { 'id' => 3, 'name' => 'user3' },
+          { 'id' => 2, 'name' => 'user2' },
+          { 'id' => 1, 'name' => 'user1' },
+        ],
+      }
+    end
 
     # define the application flows as will be represented by the abf_flow provider per application
     let(:flow_with_no_users_applications) do
@@ -104,7 +119,7 @@ RSpec.describe Puppet::Provider::AbfFlow::AbfFlow do
           application: app_name,
           sources: ['192.168.0.0/16', 'HR Payroll server'],
           destinations: ['16.47.71.62'],
-          services: ['HTTPS', 'HTTP'],
+          services: ['HTTP', 'HTTPS'],
           users: [],
           applications: [],
           comment: 'comment1',
@@ -127,60 +142,98 @@ RSpec.describe Puppet::Provider::AbfFlow::AbfFlow do
         }
       end
     end
+    let(:flow_with_sorted_list_fields) do
+      # This flow is used to demonstrate that list fields are sorted for idempotency purposes
+      ->(app_name) do
+        return {
+          name: 'flow',
+          application: app_name,
+          sources: ['source1', 'source2', 'source3'],
+          destinations: ['dest1', 'dest2', 'dest3'],
+          services: ['service1', 'service2', 'service3'],
+          users: ['user1', 'user2', 'user3'],
+          applications: ['app1', 'app2', 'app3'],
+          comment: 'comment',
+          ensure: 'present',
+        }
+      end
+    end
+
+    let(:app_name2) { 'application-name2' }
+    let(:app_revision_id2) { 123 }
+
+    let(:app_to_api_json) do
+      {
+        app_name => { 'revisionID' => app_revision_id, 'name' => app_name },
+        app_name2 => { 'revisionID' => app_revision_id2, 'name' => app_name2 } }
+    end
+    # list of applications that would be returned from the server
+    let(:applications) { [] }
+    # define the application json as it will be returned from the API.
+    let(:applications_json) { applications.map { |name| app_to_api_json[name] } }
+
+    let(:flows_from_server) { provider.get(context) }
+
+    before(:each) do
+      allow(api).to receive(:get_applications).and_return(applications_json)
+    end
 
     it 'logs an update notice' do
-      allow(api).to receive(:get_applications).and_return([])
       allow(api).to receive(:get_application_flows)
 
       expect(context).to receive(:notice).with('Getting all application flows')
-      provider.get(context)
+      flows_from_server
     end
 
     context 'parses and filters api flows' do
-      it 'filters out non application flows' do
-        expect(api).to receive(:get_applications).with(no_args).and_return([app_json1])
-        expect(api).to receive(:get_application_flows).with(app_revision_id).and_return([non_application_flow_json])
-        expect(provider.get(context)).to eq []
+      context 'of one app' do
+        let(:applications) { [app_name] }
+        it 'filters out non application flows' do
+          expect(api).to receive(:get_application_flows).with(app_revision_id).and_return([non_application_flow_json])
+          expect(flows_from_server).to eq []
+        end
+        it 'handles missing users and applications fields' do
+          expect(api).to receive(:get_application_flows).with(app_revision_id).and_return([flow_json_with_no_users_applications])
+          expect(flows_from_server).to eq [flow_with_no_users_applications[app_name]]
+        end
+        it 'handles users and applications fields set as "any"' do
+          expect(api).to receive(:get_application_flows).with(app_revision_id).and_return([flow_json_with_any_users_applications])
+          # When the users and applications are set to any, it is same as if they were not defined at all
+          expect(flows_from_server).to eq [flow_with_no_users_applications[app_name]]
+        end
+        it 'handles defined users and applications fields' do
+          expect(api).to receive(:get_application_flows).with(app_revision_id).and_return([flow_json_with_users_applications])
+          expect(flows_from_server).to eq [flow_with_users_applications[app_name]]
+        end
+        it 'sorts the list fields for idempotency reasons' do
+          expect(api).to receive(:get_application_flows).with(app_revision_id).and_return([unsorted_flow_json])
+          expect(flows_from_server).to eq [flow_with_sorted_list_fields[app_name]]
+        end
       end
-      it 'handles missing users and applications fields' do
-        expect(api).to receive(:get_applications).with(no_args).and_return([app_json1])
-        expect(api).to receive(:get_application_flows).with(app_revision_id).and_return([flow_json_with_no_users_applications])
-        expect(provider.get(context)).to eq [flow_with_no_users_applications[app_name]]
-      end
-      it 'handles users and applications fields set as "any"' do
-        expect(api).to receive(:get_applications).with(no_args).and_return([app_json1])
-        expect(api).to receive(:get_application_flows).with(app_revision_id).and_return([flow_json_with_any_users_applications])
-        # When the users and applications are set to any, it is same as if they were not defined at all
-        expect(provider.get(context)).to eq [flow_with_no_users_applications[app_name]]
-      end
-      it 'handles defined users and applications fields' do
-        expect(api).to receive(:get_applications).with(no_args).and_return([app_json1])
-        expect(api).to receive(:get_application_flows).with(app_revision_id).and_return([flow_json_with_users_applications])
-        # When the users and applications are set to any, it is same as if they were not defined at all
-        expect(provider.get(context)).to eq [flow_with_users_applications[app_name]]
-      end
+      context 'of two apps' do
+        let(:applications) { [app_name, app_name2] }
 
-      it 'fetch and combine flows from multiple apps' do
-        expect(api).to receive(:get_applications).with(no_args).and_return([app_json1, app_json2])
-        expect(api).to receive(:get_application_flows).with(app_revision_id).and_return([flow_json_with_users_applications])
-        expect(api).to receive(:get_application_flows).with(app_revision_id2).and_return([flow_json_with_no_users_applications])
-        # When the users and applications are set to any, it is same as if they were not defined at all
-        expect(provider.get(context)).to eq [flow_with_users_applications[app_name], flow_with_no_users_applications[app_name2]]
+        it 'fetch and combine flows from multiple apps' do
+          expect(api).to receive(:get_application_flows).with(app_revision_id).and_return([flow_json_with_users_applications])
+          expect(api).to receive(:get_application_flows).with(app_revision_id2).and_return([flow_json_with_no_users_applications])
+          # When the users and applications are set to any, it is same as if they were not defined at all
+          expect(flows_from_server).to eq [flow_with_users_applications[app_name], flow_with_no_users_applications[app_name2]]
+        end
       end
     end
     context 'when an application is not managed' do
       let(:unmanaged_applications) { [app_name2] }
+      let(:applications) { [app_name, app_name2] }
 
       it "doesn't return it's flows" do
-        expect(api).to receive(:get_applications).with(no_args).and_return([app_json1, app_json2])
         expect(api).to receive(:get_application_flows).with(app_revision_id).and_return([flow_json_with_users_applications])
         # The flows are returned only for the managed app
-        expect(provider.get(context)).to eq [flow_with_users_applications[app_name]]
+        expect(flows_from_server).to eq [flow_with_users_applications[app_name]]
       end
     end
   end
 
-  describe 'create(context, name_hash, should)' do
+  describe '#create(context, name_hash, should)' do
     let(:should_hash) do
       {
         sources: ['source1', 'source2'],
@@ -242,12 +295,12 @@ RSpec.describe Puppet::Provider::AbfFlow::AbfFlow do
       let(:unmanaged_applications) { [app_name] }
 
       it 'refuses creation of flows within it' do
-        expect { provider.create(context, name_hash, should_hash) }.to raise_error("Creation cancelled for flow of an unmanaged application: #{full_flow_name}")
+        expect { provider.create(context, name_hash, should_hash) }.to raise_error("Creation cancelled for flow of an unmanaged application: `#{full_flow_name}`")
       end
     end
   end
 
-  describe 'update(context, name_hash, should)' do
+  describe '#update(context, name_hash, should)' do
     let(:should_hash) { { name: name, ensure: 'present' } }
 
     before(:each) do
@@ -268,12 +321,12 @@ RSpec.describe Puppet::Provider::AbfFlow::AbfFlow do
       let(:unmanaged_applications) { [app_name] }
 
       it 'refuses update of any of its flows' do
-        expect { provider.update(context, name_hash, should_hash) }.to raise_error("Update cancelled for flow of an unmanaged application: #{full_flow_name}")
+        expect { provider.update(context, name_hash, should_hash) }.to raise_error("Update cancelled for flow of an unmanaged application: `#{full_flow_name}`")
       end
     end
   end
 
-  describe 'delete(context, name_hash, should)' do
+  describe '#delete(context, name_hash, should)' do
     let(:flow_id) { 999 }
 
     before(:each) do
@@ -295,8 +348,32 @@ RSpec.describe Puppet::Provider::AbfFlow::AbfFlow do
       let(:unmanaged_applications) { [app_name] }
 
       it 'refuses deletion of any of its flows' do
-        expect { provider.delete(context, name_hash) }.to raise_error("Deletion cancelled for flow of an unmanaged application: #{full_flow_name}")
+        expect { provider.delete(context, name_hash) }.to raise_error("Deletion cancelled for flow of an unmanaged application: `#{full_flow_name}`")
       end
+    end
+  end
+  describe '#canonicalize(context, resources)' do
+    let(:abf_flow) do
+      {
+        name: 'flow',
+        application: 'app_name',
+        sources: ['4', '3', '2', '1'],
+        destinations: ['4', '3', '2', '1'],
+        services: ['4', '3', '2', '1'],
+        users: ['4', '3', '2', '1'],
+        applications: ['4', '3', '2', '1'],
+        comment: 'comment',
+        ensure: 'present',
+      }
+    end
+    [:sources, :destinations, :services, :users, :applications].each do |list_attribute|
+
+      it "sorts the `#{list_attribute}` attribute" do
+        expect(provider.canonicalize(context, [abf_flow])[0][list_attribute]).to eq abf_flow[list_attribute].sort
+      end
+    end
+    it 'does not fail due to an empty flow hash' do
+      expect { provider.canonicalize(context, [{}]) }.not_to raise_error
     end
   end
 end

@@ -32,17 +32,17 @@ RSpec.describe Puppet::Util::NetworkDevice::Algosec do
       context 'when `user` and password is provided' do
         let(:device_config) { { 'host' => 'www.example.com', 'user' => 'foo', 'password' => 'password' } }
 
-        it { expect { device.config }.not_to raise_error Puppet::ResourceError }
+        it { expect { device.config }.not_to raise_error }
       end
       context 'when no `managed_applicaions` provided in the config' do
         let(:device_config) { { 'host' => 'www.example.com', 'user' => 'foo', 'password' => 'password' } }
 
-        it { expect { device.config }.not_to raise_error Puppet::ResourceError }
+        it { expect { device.config }.not_to raise_error }
       end
       context 'when valid `managed_applications` are provided' do
         let(:managed_applications) { ['app1', 'app2'] }
 
-        it { expect { device.config }.not_to raise_error Puppet::ResourceError }
+        it { expect { device.config }.not_to raise_error }
       end
       context 'when invalid `managed_applications` are provided' do
         [

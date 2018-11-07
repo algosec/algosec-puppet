@@ -26,7 +26,7 @@ module Puppet::Util::NetworkDevice::Algosec
     def outstanding_drafts?
       api.get_applications.each do |app_json|
         if managed_application?(app_json['name']) && app_json.fetch('revisionStatus') == 'Draft'
-          Puppet::Util::Log.log_func("Outstanding application draft found for: #{app_json['name']}", :info, [])
+          Puppet.debug("Outstanding application draft found for: #{app_json['name']}")
           return true
         end
       end
@@ -37,7 +37,7 @@ module Puppet::Util::NetworkDevice::Algosec
       api.get_applications.each do |app_json|
         if managed_application?(app_json['name']) && app_json.fetch('revisionStatus') == 'Draft'
           api.apply_application_draft(app_json['revisionID'])
-          Puppet::Util::Log.log_func("Application draft applied for: #{app_json['name']}", :info, [])
+          Puppet.debug("Application draft applied for: #{app_json['name']}")
         end
       end
       true

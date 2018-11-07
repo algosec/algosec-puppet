@@ -2,7 +2,7 @@ require 'puppet/resource_api/simple_provider'
 
 # Implementation for the abf_flow type using the Resource API.
 class Puppet::Provider::AbfFlow::AbfFlow < Puppet::ResourceApi::SimpleProvider
-  def canonicalize(context, resources)
+  def canonicalize(_context, resources)
     resources.each do |r|
       [:sources, :destinations, :services, :users, :applications].each do |attr|
         r[attr].sort! if r.key?(attr)

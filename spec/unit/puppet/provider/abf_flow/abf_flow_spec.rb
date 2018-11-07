@@ -165,7 +165,8 @@ RSpec.describe Puppet::Provider::AbfFlow::AbfFlow do
     let(:app_to_api_json) do
       {
         app_name => { 'revisionID' => app_revision_id, 'name' => app_name },
-        app_name2 => { 'revisionID' => app_revision_id2, 'name' => app_name2 } }
+        app_name2 => { 'revisionID' => app_revision_id2, 'name' => app_name2 },
+      }
     end
     # list of applications that would be returned from the server
     let(:applications) { [] }
@@ -188,6 +189,7 @@ RSpec.describe Puppet::Provider::AbfFlow::AbfFlow do
     context 'parses and filters api flows' do
       context 'of one app' do
         let(:applications) { [app_name] }
+
         it 'filters out non application flows' do
           expect(api).to receive(:get_application_flows).with(app_revision_id).and_return([non_application_flow_json])
           expect(flows_from_server).to eq []
@@ -366,8 +368,8 @@ RSpec.describe Puppet::Provider::AbfFlow::AbfFlow do
         ensure: 'present',
       }
     end
-    [:sources, :destinations, :services, :users, :applications].each do |list_attribute|
 
+    [:sources, :destinations, :services, :users, :applications].each do |list_attribute|
       it "sorts the `#{list_attribute}` attribute" do
         expect(provider.canonicalize(context, [abf_flow])[0][list_attribute]).to eq abf_flow[list_attribute].sort
       end

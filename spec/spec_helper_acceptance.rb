@@ -15,11 +15,8 @@ RSpec.configure do |c|
   c.before :suite do
     system('rake spec_prep')
     # system('env|sort')
-    if ENV['ALGOSEC_TEST_HOST']
-      @hostname = ENV['ALGOSEC_TEST_HOST']
-    else
-      raise 'Could not locate or create a test host'
-    end
+    raise 'Could not locate or create a test host' unless ENV['ALGOSEC_TEST_HOST']
+    @hostname = ENV['ALGOSEC_TEST_HOST']
 
     puts "Detected config for AlgoSec machine at: #{@hostname}"
 
@@ -41,5 +38,4 @@ url file://#{Dir.getwd}/spec/fixtures/acceptance-credentials.conf
 DEVICE
     end
   end
-
 end

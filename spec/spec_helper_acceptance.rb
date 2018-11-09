@@ -26,7 +26,7 @@ host: #{@hostname}
 user: #{ENV['ALGOSEC_TEST_USER'] || 'admin'}
 password: #{ENV['ALGOSEC_TEST_PASSWORD'] || 'algosec'}
 ssl_enabled: false
-managed_applications: [ puppet-test-app ]
+managed_applications: [ puppet-test-application ]
 CREDENTIALS
     end
 

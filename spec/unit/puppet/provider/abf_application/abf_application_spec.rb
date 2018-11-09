@@ -52,7 +52,7 @@ RSpec.describe Puppet::Provider::AbfApplication::AbfApplication do
     end
 
     it 'log a notice' do
-      expect(context).to receive(:notice).with(%r{\ACreating '#{app_name}'})
+      expect(context).to receive(:notice).with(%r{\ACreating application '#{app_name}'})
       provider.create(context, app_name, name: app_name, ensure: 'present')
     end
     it 'uses the api to create the app' do

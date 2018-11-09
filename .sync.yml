@@ -5,12 +5,11 @@ Gemfile:
     ':development':
       - gem: 'webmock'
       - gem: 'puppet-resource_api'
-#      - gem: 'rspec-rails'
       - gem: 'algosec-sdk'
         version: '~> 1.2.0'
         # TODO: Do I need the dependency below?
-      - gem: 'beaker-hostgenerator'
-        version: '~> 1.1.15'
+#      - gem: 'beaker-hostgenerator'
+#        version: '~> 1.1.15'
 spec/spec_helper.rb:
   mock_with: ':rspec'
   spec_overrides:
@@ -25,3 +24,7 @@ spec/spec_helper.rb:
   paths:
   - spec/fixtures/acceptance-credentials.conf
   - spec/fixtures/acceptance-device.conf
+appveyor.yml:
+  delete: true
+.gitlab-ci.yml:
+  delete: true

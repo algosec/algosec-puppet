@@ -29,7 +29,6 @@ group :development do
   gem "webmock",                                       require: false
   gem "puppet-resource_api",                           require: false
   gem "algosec-sdk", '~> 1.2.0',                       require: false
-  gem "beaker-hostgenerator", '~> 1.1.15',             require: false
 end
 
 puppet_version = ENV['PUPPET_GEM_VERSION']

@@ -1,4 +1,3 @@
-# bundle exec puppet device --modulepath spec/fixtures/modules/ --deviceconfig spec/fixtures/device.conf --target pavm --verbose --trace --apply tests/test_commit.pp
 $test_app_name = 'puppet-test-application'
 
 abf_application{$test_app_name:;} -> abf_flow {

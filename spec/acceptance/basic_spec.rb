@@ -41,6 +41,7 @@ describe 'basic algosec config' do
         let(:args) { '--apply spec/fixtures/update.pp' }
         let(:update_app_flow1) { "Updating application flow '#{application_name}/flow with no optional fields defined'" }
         let(:update_app_flow2) { "Updating application flow '#{application_name}/flow with the application defined in the title'" }
+
         it 'applies a catalog with changes' do
           expect(stdout_str).not_to match %r{Error:}
           expect(stdout_str).to match update_app_flow1
@@ -54,6 +55,7 @@ describe 'basic algosec config' do
           let(:args) { '--apply spec/fixtures/autodelete_application_and_flows.pp' }
           let(:delete_app_flow1) { "Deleting application flow 'puppet-test-application/flow with no optional fields defined'" }
           let(:delete_app_flow2) { "Deleting application flow 'puppet-test-application/flow with the application defined in the title'" }
+
           it 'applies a catalog with changes' do
             expect(stdout_str).not_to match %r{Error:}
             expect(stdout_str).to match delete_app_flow1
@@ -66,6 +68,7 @@ describe 'basic algosec config' do
           context 'when applying the application draft' do
             let(:args) { '--apply spec/fixtures/apply_application_draft.pp' }
             let(:application_draft_applied) { 'Notice: abf_apply_draft\[apply\]: Updating: Finished' }
+
             it 'applies a catalog with changes' do
               expect(stdout_str).not_to match %r{Error:}
               expect(stdout_str).to match application_draft_applied

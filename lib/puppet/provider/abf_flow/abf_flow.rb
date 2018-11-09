@@ -78,6 +78,10 @@ class Puppet::Provider::AbfFlow::AbfFlow < Puppet::ResourceApi::SimpleProvider
           users: [],
           applications: [],
         }
+
+        # Adding a proper
+        flow[:title] = "#{flow[:application]}/#{flow[:name]}"
+
         # Now populate the optional fields
         if flow_json['networkUsers']
           flow[:users] = (flow_json['networkUsers'].map { |user| user['name'] if user['id'] != 0 }).compact.sort

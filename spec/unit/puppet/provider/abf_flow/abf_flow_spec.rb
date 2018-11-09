@@ -115,6 +115,7 @@ RSpec.describe Puppet::Provider::AbfFlow::AbfFlow do
     let(:flow_with_no_users_applications) do
       ->(app_name) do
         return {
+          title: "#{app_name}/flow1",
           name: 'flow1',
           application: app_name,
           sources: ['192.168.0.0/16', 'HR Payroll server'],
@@ -130,6 +131,7 @@ RSpec.describe Puppet::Provider::AbfFlow::AbfFlow do
     let(:flow_with_users_applications) do
       ->(app_name) do
         return {
+          title: "#{app_name}/flow3",
           name: 'flow3',
           application: app_name,
           sources: ['10.0.0.1'],
@@ -146,6 +148,7 @@ RSpec.describe Puppet::Provider::AbfFlow::AbfFlow do
       # This flow is used to demonstrate that list fields are sorted for idempotency purposes
       ->(app_name) do
         return {
+          title: "#{app_name}/flow",
           name: 'flow',
           application: app_name,
           sources: ['source1', 'source2', 'source3'],

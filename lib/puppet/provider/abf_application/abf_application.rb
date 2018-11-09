@@ -11,7 +11,7 @@ class Puppet::Provider::AbfApplication::AbfApplication < Puppet::ResourceApi::Si
 
   def create(context, name, should)
     raise Puppet::ResourceError, "Creation cancelled for unmanaged application #{name}" unless context.device.managed_application?(name)
-    context.notice("Creating '#{name}' with #{should.inspect}")
+    context.notice("Creating application '#{name}' with #{should.inspect}")
     # TODO: Support all of hte application attributes (other than name) when the AlgoSec ABF API implements PUT
     # TODO: for abf applications
     context.device.api.create_application(name)

@@ -9,7 +9,6 @@ describe 'basic algosec config' do
   end
   let(:stdout_str) { result[0] }
   let(:status) { result[1] }
-  let(:success_regex) { %r{Notice: panos_commit\[commit\]: Updating: Finished in \d+.\d+ seconds} }
 
   let(:args) { '--apply spec/fixtures/create.pp' }
   let(:application_name) { 'puppet-test-application' }

@@ -7,7 +7,7 @@ RSpec.describe Puppet::Provider::AbfFlow::AbfFlow do
   subject(:provider) { described_class.new }
 
   let(:context) { instance_double('Puppet::ResourceApi::BaseContext', 'context') }
-  let(:device) { instance_double('Puppet::Util::NetworkDevice::Panos::Device', 'device') }
+  let(:device) { instance_double('Puppet::Util::NetworkDevice::Algosec::Device', 'device') }
   let(:api) { instance_double('ALGOSEC_SDK::Client', 'api') }
 
   let(:name) { 'flow-name' }

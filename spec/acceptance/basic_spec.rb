@@ -66,7 +66,7 @@ describe 'basic algosec config' do
 
           context 'when applying the application draft' do
             let(:args) { '--apply spec/fixtures/apply_application_draft.pp' }
-            let(:application_draft_applied) { 'Notice: abf_apply_draft\[apply\]: Updating: Finished' }
+            let(:application_draft_applied) { 'Notice: algosec_apply_draft\[apply\]: Updating: Finished' }
 
             it 'applies a catalog with changes' do
               expect(stdout_str).not_to match %r{Error:}

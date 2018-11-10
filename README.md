@@ -20,9 +20,9 @@
 
 The AlgoSec module configures BusinessFlow applications and flows on AlgoSec version 2017.2.0 and up.
 
-When making changes to AlgoSec BusinessFlow applications or flows, include `abf_apply_draft` in your manifest, or execute the `apply_drafts` task. You must do this before the changes are applied for further processing in AlgoSec FireFlow. 
+When making changes to AlgoSec BusinessFlow applications or flows, include `algosec_apply_draft` in your manifest, or execute the `apply_drafts` task. You must do this before the changes are applied for further processing in AlgoSec FireFlow. 
 
-The module provides a Puppet task to manually `abf_apply_draft` which will apply application drafts for all the managed applications.
+The module provides a Puppet task to manually `apply_drafts` which will apply outstanding application drafts for all the managed applications.
 
 The module is intended to manage __all__ applications on BusinessFlow unless configured to manage only specific applications. When it is configured to manage only specific list of applications, it is avoiding __ANY__ changes to unmanaged applications. To configure managed applications, see the [Getting started with AlgoSec](#getting-started-with-algosec) section.  
 
@@ -101,17 +101,17 @@ The repo's acceptance test examples contain a [useful reference](https://github.
 
 To get information from the device, use the `puppet device --resource` command. For example, to retrieve available BusinessFlow applications on the AlgoSec server, run the following:
 
-`puppet device --resource --target local.algosec.com abf_flow`
+`puppet device --resource --target local.algosec.com algosec_flow`
 
 To create a application, write a manifest. Start by making a file named `manifest.pp` with the following content:
 
 ```
-abf_application { 'some-application':
+algosec_application { 'some-application':
   ensure => 'present',
 }
 ```
 
-__Note__: The `abf_application` resource currently support only name attribute. Wider support for other application attributes is planned.
+__Note__: The `algosec_application` resource currently support only name attribute. Wider support for other application attributes is planned.
 
 Execute the following command:
 
@@ -119,7 +119,7 @@ Execute the following command:
 
 This will apply the manifest. Puppet will check if the address already exists and if it is absent it will create it (idempotency check). When you query for addresses you will see that the new BusinessFlow application is available. To do this, run the following command again:
 
-`puppet device --resource --target local.algosec.com abf_application`
+`puppet device --resource --target local.algosec.com algosec_application`
 
 Note that if you get errors, run the above commands with `--verbose` - this will give you error message output.
 

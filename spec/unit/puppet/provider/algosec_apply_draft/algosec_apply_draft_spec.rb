@@ -1,9 +1,9 @@
 require 'spec_helper'
 
-ensure_module_defined('Puppet::Provider::AbfApplyDraft')
-require 'puppet/provider/abf_apply_draft/abf_apply_draft'
+ensure_module_defined('Puppet::Provider::AlgosecApplyDraft')
+require 'puppet/provider/algosec_apply_draft/algosec_apply_draft'
 
-RSpec.describe Puppet::Provider::AbfApplyDraft::AbfApplyDraft do
+RSpec.describe Puppet::Provider::AlgosecApplyDraft::AlgosecApplyDraft do
   subject(:provider) { described_class.new }
 
   let(:context) { instance_double('Puppet::ResourceApi::BaseContext', 'context') }

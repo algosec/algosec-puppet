@@ -1,9 +1,9 @@
 require 'puppet/resource_api/simple_provider'
 
-# Implementation for the abf_application type using the Resource API.
-class Puppet::Provider::AbfApplication::AbfApplication < Puppet::ResourceApi::SimpleProvider
+# Implementation for the algosec_application type using the Resource API.
+class Puppet::Provider::AlgosecApplication::AlgosecApplication < Puppet::ResourceApi::SimpleProvider
   def get(context)
-    context.notice('Get all ABF Applications')
+    context.notice('Get all the BusinessFlow applications')
     applications = context.device.api.get_applications
     # Strip all keys but the application name
     applications.map { |application| { name: application['name'] } if context.device.managed_application?(application['name']) }.compact

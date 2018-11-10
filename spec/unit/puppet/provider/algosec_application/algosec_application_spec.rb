@@ -1,10 +1,10 @@
 require 'spec_helper'
 require 'support/matchers/one_of'
 
-ensure_module_defined('Puppet::Provider::AbfApplication')
-require 'puppet/provider/abf_application/abf_application'
+ensure_module_defined('Puppet::Provider::AlgosecApplication')
+require 'puppet/provider/algosec_application/algosec_application'
 
-RSpec.describe Puppet::Provider::AbfApplication::AbfApplication do
+RSpec.describe Puppet::Provider::AlgosecApplication::AlgosecApplication do
   subject(:provider) { described_class.new }
 
   let(:unmanaged_applications) { [] }
@@ -29,7 +29,7 @@ RSpec.describe Puppet::Provider::AbfApplication::AbfApplication do
     end
 
     it 'log a notice' do
-      expect(context).to receive(:notice).with('Get all ABF Applications')
+      expect(context).to receive(:notice).with('Get all the BusinessFlow applications')
       provider.get(context)
     end
     it 'fetch managed applications from api' do

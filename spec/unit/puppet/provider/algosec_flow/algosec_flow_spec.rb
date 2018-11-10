@@ -1,10 +1,10 @@
 require 'spec_helper'
 require 'support/matchers/one_of'
 
-ensure_module_defined('Puppet::Provider::AbfFlow')
-require 'puppet/provider/abf_flow/abf_flow'
+ensure_module_defined('Puppet::Provider::AlgosecFlow')
+require 'puppet/provider/algosec_flow/algosec_flow'
 
-RSpec.describe Puppet::Provider::AbfFlow::AbfFlow do
+RSpec.describe Puppet::Provider::AlgosecFlow::AlgosecFlow do
   subject(:provider) { described_class.new }
 
   let(:context) { instance_double('Puppet::ResourceApi::BaseContext', 'context') }
@@ -17,7 +17,7 @@ RSpec.describe Puppet::Provider::AbfFlow::AbfFlow do
   let(:app_revision_id) { 888 }
   let(:unmanaged_applications) { [] }
 
-  # Since abf_flow type has two namevars, it's name is passed as a hash that include all namevars
+  # Since algosec_flow type has two namevars, it's name is passed as a hash that include all namevars
   let(:name_hash) { { name: name, application: app_name } }
 
   before(:each) do
@@ -31,7 +31,7 @@ RSpec.describe Puppet::Provider::AbfFlow::AbfFlow do
   describe '#get(context)' do
     # JSON Objects that mimics the original API json results returned from the API
     let(:flow_json_with_no_users_applications) do
-      # This flow represent a possible ABF setting were the applications and users will not be present in the
+      # This flow represent a possible BusinessFlow setting were the applications and users will not be present in the
       # response JSON
       {
         'flowID' => 1394,
@@ -112,7 +112,7 @@ RSpec.describe Puppet::Provider::AbfFlow::AbfFlow do
       }
     end
 
-    # define the application flows as will be represented by the abf_flow provider per application
+    # define the application flows as will be represented by the algosec_flow provider per application
     let(:flow_with_no_users_applications) do
       ->(app_name) do
         return {
@@ -359,7 +359,7 @@ RSpec.describe Puppet::Provider::AbfFlow::AbfFlow do
     end
   end
   describe '#canonicalize(context, resources)' do
-    let(:abf_flow) do
+    let(:algosec_flow) do
       {
         name: 'flow',
         application: 'app_name',
@@ -375,7 +375,7 @@ RSpec.describe Puppet::Provider::AbfFlow::AbfFlow do
 
     [:sources, :destinations, :services, :users, :applications].each do |list_attribute|
       it "sorts the `#{list_attribute}` attribute" do
-        expect(provider.canonicalize(context, [abf_flow])[0][list_attribute]).to eq abf_flow[list_attribute].sort
+        expect(provider.canonicalize(context, [algosec_flow])[0][list_attribute]).to eq algosec_flow[list_attribute].sort
       end
     end
     it 'does not fail due to an empty flow hash' do

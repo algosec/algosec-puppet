@@ -1,7 +1,7 @@
 require 'puppet/resource_api'
 
 Puppet::ResourceApi.register_type(
-  name: 'abf_application',
+  name: 'algosec_application',
   docs: <<-EOS,
 This type provides Puppet with the capabilities to manage Applications on AlgoSec BusinessFlow.
 Currently the management capabilities of this resource are limited until proper update API methods are
@@ -21,6 +21,6 @@ implemented in AlgoSec BusinessFlow.
     },
   },
   autobefore: {
-    abf_apply_draft: 'apply',
+    algosec_apply_draft: 'apply',
   },
 )

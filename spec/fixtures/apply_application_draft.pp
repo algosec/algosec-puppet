@@ -1,5 +1,5 @@
 
-abf_apply_draft {
+algosec_apply_draft {
   'apply':
     apply => true
 }

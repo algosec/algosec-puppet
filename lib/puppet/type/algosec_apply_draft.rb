@@ -1,7 +1,7 @@
 require 'puppet/resource_api'
 
 Puppet::ResourceApi.register_type(
-  name: 'abf_apply_draft',
+  name: 'algosec_apply_draft',
   docs: <<-EOS,
 @summary When evaluated, this resource apply all outstanding application drafts in the managed AlgoSec server.
 

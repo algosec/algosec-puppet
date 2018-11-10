@@ -1,6 +1,6 @@
 $test_app_name = 'puppet-test-application'
 
-abf_application{$test_app_name:;} -> abf_flow {
+algosec_application{$test_app_name:;} -> algosec_flow {
   'flow with no optional fields defined':
     application  => $test_app_name,
     sources      => ['192.168.1.1'],

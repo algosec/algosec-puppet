@@ -10,9 +10,9 @@
 
 **Resource types**
 
-* [`abf_application`](#abf_application): This type provides Puppet with the capabilities to manage Applications on AlgoSec BusinessFlow. Currently the management capabilities of this
-* [`abf_apply_draft`](#abf_apply_draft): When evaluated, this resource apply all outstanding application drafts in the managed AlgoSec server.
-* [`abf_flow`](#abf_flow): This type provides Puppet with the capabilities to manage "Application Flows" on AlgoSec BusinessFlow. The usage of this resources is depende
+* [`algosec_application`](#algosec_application): This type provides Puppet with the capabilities to manage Applications on AlgoSec BusinessFlow. Currently the management capabilities of this
+* [`algosec_apply_draft`](#algosec_apply_draft): When evaluated, this resource apply all outstanding application drafts in the managed AlgoSec server.
+* [`algosec_flow`](#algosec_flow): This type provides Puppet with the capabilities to manage "Application Flows" on AlgoSec BusinessFlow. The usage of this resources is depende
 
 **Tasks**
 
@@ -46,7 +46,7 @@ include algosec::server
 
 ## Resource types
 
-### abf_application
+### algosec_application
 
 This type provides Puppet with the capabilities to manage Applications on AlgoSec BusinessFlow.
 Currently the management capabilities of this resource are limited until proper update API methods are
@@ -54,7 +54,7 @@ implemented in AlgoSec BusinessFlow.
 
 #### Properties
 
-The following properties are available in the `abf_application` type.
+The following properties are available in the `algosec_application` type.
 
 ##### `ensure`
 
@@ -66,7 +66,7 @@ Default value: present
 
 #### Parameters
 
-The following parameters are available in the `abf_application` type.
+The following parameters are available in the `algosec_application` type.
 
 ##### `name`
 
@@ -76,7 +76,7 @@ Data type: `String[2]`
 
 The name of the AlgoSec BusinessFlow application.
 
-### abf_apply_draft
+### algosec_apply_draft
 
 When evaluated, this resource apply all outstanding application drafts in the managed AlgoSec server.
 
@@ -84,7 +84,7 @@ When evaluated, this resource apply all outstanding application drafts in the ma
 
 #### Properties
 
-The following properties are available in the `abf_apply_draft` type.
+The following properties are available in the `algosec_apply_draft` type.
 
 ##### `apply`
 
@@ -94,7 +94,7 @@ Whether an `apply application draft`should happen
 
 #### Parameters
 
-The following parameters are available in the `abf_apply_draft` type.
+The following parameters are available in the `algosec_apply_draft` type.
 
 ##### `name`
 
@@ -104,15 +104,15 @@ Data type: `Enum["apply"]`
 
 The name of the resource you want to manage. Can only be "apply".
 
-### abf_flow
+### algosec_flow
 
 This type provides Puppet with the capabilities to manage "Application Flows" on AlgoSec BusinessFlow.
 The usage of this resources is dependent upon the resource deceleration of AlgoSec BusinessFlow Application.
-Please see how-to-use examples and the abf_application resource.
+Please see how-to-use examples and the algosec_application resource.
 
 #### Properties
 
-The following properties are available in the `abf_flow` type.
+The following properties are available in the `algosec_flow` type.
 
 ##### `sources`
 
@@ -161,7 +161,7 @@ Default value: present
 
 #### Parameters
 
-The following parameters are available in the `abf_flow` type.
+The following parameters are available in the `algosec_flow` type.
 
 ##### `name`
 

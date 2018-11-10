@@ -1,11 +1,11 @@
 require 'puppet/resource_api'
 
 Puppet::ResourceApi.register_type(
-  name: 'abf_flow',
+  name: 'algosec_flow',
   docs: <<-EOS,
 This type provides Puppet with the capabilities to manage "Application Flows" on AlgoSec BusinessFlow.
 The usage of this resources is dependent upon the resource deceleration of AlgoSec BusinessFlow Application.
-Please see how-to-use examples and the abf_application resource.
+Please see how-to-use examples and the algosec_application resource.
   EOS
   features: ['remote_resource', 'canonicalize'],
   title_patterns: [
@@ -31,11 +31,11 @@ Please see how-to-use examples and the abf_application resource.
     },
     sources: {
       type: 'Array[String[1],1]',
-      desc: 'List of IPs or ABF network objects of traffic sources for the application flow.',
+      desc: 'List of IPs or BusinessFlow network objects of traffic sources for the application flow.',
     },
     destinations: {
       type: 'Array[String[1],1]',
-      desc: 'List of IPs or ABF network objects of traffic destinations for the application flow.',
+      desc: 'List of IPs or BusinessFlow network objects of traffic destinations for the application flow.',
     },
     services: {
       type: 'Array[String[1],1]',
@@ -63,6 +63,6 @@ DESC
     },
   },
   autobefore: {
-    abf_apply_draft: 'apply',
+    algosec_apply_draft: 'apply',
   },
 )

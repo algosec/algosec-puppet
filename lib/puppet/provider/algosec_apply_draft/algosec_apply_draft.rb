@@ -1,7 +1,7 @@
 require 'puppet/resource_api/simple_provider'
 
-# Implementation for the abf_apply_draft type using the Resource API.
-class Puppet::Provider::AbfApplyDraft::AbfApplyDraft < Puppet::ResourceApi::SimpleProvider
+# Implementation for the algosec_apply_draft type using the Resource API.
+class Puppet::Provider::AlgosecApplyDraft::AlgosecApplyDraft < Puppet::ResourceApi::SimpleProvider
   def get(context)
     [
       {

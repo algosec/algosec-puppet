@@ -1,9 +1,9 @@
 
 # Set AlgoSec BusinessFlow applications and flows to automatically purge unmanaged resources.
-# resources { 'abf_application':
+# resources { 'algosec_application':
 #     purge => true
 # }
 
-resources { 'abf_flow':
+resources { 'algosec_flow':
   purge => true
 }

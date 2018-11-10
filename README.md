@@ -1,6 +1,6 @@
 
 
-# algosec [![Build Status](https://travis-ci.com/algosec/algosec-puppet.svg?branch=master)](https://travis-ci.com/algosec/algosec-puppet)
+# algosec [![Build Status](https://travis-ci.com/algosec/algosec-puppet.svg?branch=master)](https://travis-ci.com/algosec/algosec-puppet) [![codecov](https://codecov.io/gh/algosec/algosec-puppet/branch/master/graph/badge.svg)](https://codecov.io/gh/algosec/algosec-puppet)
 
 
 #### Table of Contents
@@ -199,10 +199,10 @@ pdk bundle exec rspec spec/acceptance
 To cut a new release, from a current `master` checkout:
 
 * Start the release branch with `git checkout -b release-prep`
-* Execute the [Puppet Strings](https://puppet.com/docs/puppet/5.5/puppet_strings.html) rake task to update the [REFERENCE.md](https://github.com/algosec/algosec-puppet/blob/master/REFERENCE.md):
+* Execute the [Puppet Strings](https://puppet.com/docs/puppet/6.0/puppet_strings.html) rake task to update the [REFERENCE.md](https://github.com/algosec/algosec-puppet/blob/master/REFERENCE.md):
 
 ```
-bundle exec rake 'strings:generate[,,,,,REFERENCE.md,true]'
+pdk bundle exec rake 'strings:generate[,,,,,REFERENCE.md,true]'
 ```
 
 * Make sure that all PRs are tagged appropriately

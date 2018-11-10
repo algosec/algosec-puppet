@@ -26,9 +26,11 @@ group :development do
   gem "puppet-module-posix-dev-r#{minor_version}",     require: false, platforms: [:ruby]
   gem "puppet-module-win-default-r#{minor_version}",   require: false, platforms: [:mswin, :mingw, :x64_mingw]
   gem "puppet-module-win-dev-r#{minor_version}",       require: false, platforms: [:mswin, :mingw, :x64_mingw]
+  gem "puppet-strings",                                require: false, git: 'https://github.com/puppetlabs/puppet-strings.git', ref: 'master'
   gem "webmock",                                       require: false
   gem "puppet-resource_api",                           require: false
   gem "algosec-sdk", '~> 1.2.0',                       require: false
+  gem "github_changelog_generator",                    require: false, git: 'https://github.com/skywinder/github-changelog-generator', ref: '20ee04ba1234e9e83eb2ffb5056e23d641c7a018' if Gem::Version.new(RUBY_VERSION.dup) >= Gem::Version.new('2.2.2')
 end
 
 puppet_version = ENV['PUPPET_GEM_VERSION']

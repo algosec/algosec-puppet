@@ -1,0 +1,11 @@
+{
+  "puppet_task_version": 1,
+  "supports_noop": false,
+  "description": "Apply application drafts for all managed applications.",
+  "parameters": {
+    "credentials_file": {
+      "description": "The filename of the credentials file (as referenced in device.conf)",
+      "type": "String"
+    }
+  }
+}

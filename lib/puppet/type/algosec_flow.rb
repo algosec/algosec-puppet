@@ -1,20 +1,20 @@
 require 'puppet/resource_api'
 
 Puppet::ResourceApi.register_type(
-  name: 'abf_flow',
+  name: 'algosec_flow',
   docs: <<-EOS,
-      Define application flows comprising one abf_flow resource.
-      The connectivity for each ABF application is defined by the sum effect of the list of application flows 
-        that are defined within it. Please see the abf_flow type for how-to-use documentation.
+This type provides Puppet with the capabilities to manage "Application Flows" on AlgoSec BusinessFlow.
+The usage of this resources is dependent upon the resource deceleration of AlgoSec BusinessFlow Application.
+Please see how-to-use examples and the algosec_application resource.
   EOS
-  features: ['remote_resource'],
+  features: ['remote_resource', 'canonicalize'],
   title_patterns: [
     {
-      pattern: %r{^(?<name>.*[^/])/(?<application>.*)$},
+      pattern: %r{^(?<application>.+)/(?<name>.+)$},
       desc: 'Where the flow name and the application name are provided with a slash separator',
     },
     {
-      pattern: %r{^(?<name>.*)$},
+      pattern: %r{^(?<name>.+)$},
       desc: 'Where only the flow name is given',
     },
   ],
@@ -31,11 +31,11 @@ Puppet::ResourceApi.register_type(
     },
     sources: {
       type: 'Array[String[1],1]',
-      desc: 'List of IPs or ABF network objects of traffic sources for the application flow.',
+      desc: 'List of IPs or BusinessFlow network objects of traffic sources for the application flow.',
     },
     destinations: {
       type: 'Array[String[1],1]',
-      desc: 'List of IPs or ABF network objects of traffic destinations for the application flow.',
+      desc: 'List of IPs or BusinessFlow network objects of traffic destinations for the application flow.',
     },
     services: {
       type: 'Array[String[1],1]',
@@ -57,9 +57,12 @@ DESC
       desc: 'Optional comment to attach to the flow.',
     },
     ensure: {
-      type:    'Enum[present, absent]',
-      desc:    'Whether this resource should be present or absent on the target system.',
+      type: 'Enum[present, absent]',
+      desc: 'Whether this resource should be present or absent on the target system.',
       default: 'present',
     },
+  },
+  autobefore: {
+    algosec_apply_draft: 'apply',
   },
 )

@@ -1,10 +1,11 @@
 {
   "name": "AlgoSec-algosec",
-  "version": "0.1.0",
+  "version": "0.0.0",
   "author": "Almog Cohen <almog.cohen@algosec.com>",
   "summary": "DevOps-ify network security management, leveraging AlgoSec's business-driven security policy management solution",
   "license": "MIT",
-  "source": "",
+  "source": "https://github.com/algosec/algosec-puppet",
+  "project_page": "https://github.com/algosec/algosec-puppet",
   "dependencies": [
 
   ],
@@ -81,10 +82,10 @@
   "requirements": [
     {
       "name": "puppet",
-      "version_requirement": ">= 4.7.0 < 6.0.0"
+      "version_requirement": ">= 4.7.0 < 7.0.0"
     }
   ],
-  "pdk-version": "1.6.1",
-  "template-url": "file:///opt/puppetlabs/pdk/share/cache/pdk-templates.git",
-  "template-ref": "1.6.1-0-g6b0d497"
+  "pdk-version": "1.7.1",
+  "template-url": "https://github.com/puppetlabs/pdk-templates.git",
+  "template-ref": "heads/master-0-gabccfb1"
 }

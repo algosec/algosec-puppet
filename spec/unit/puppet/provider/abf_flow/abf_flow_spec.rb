@@ -1,4 +1,5 @@
 require 'spec_helper'
+require 'support/matchers/one_of'
 
 ensure_module_defined('Puppet::Provider::AbfFlow')
 require 'puppet/provider/abf_flow/abf_flow'

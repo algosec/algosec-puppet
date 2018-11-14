@@ -6,6 +6,7 @@
   "license": "MIT",
   "source": "https://github.com/algosec/algosec-puppet",
   "project_page": "https://github.com/algosec/algosec-puppet",
+  "issues_url": "https://github.com/algosec/algosec-puppet/issues",
   "dependencies": [
     {
       "name": "puppetlabs/resource_api",

@@ -18,15 +18,11 @@
 
 ## Module Description
 
-The AlgoSec module configures BusinessFlow applications and flows on AlgoSec version 2017.2.0 and up.
+Through its application-centric approach, AlgoSec extends security policy management into existing DevOps practices and tools to support the entire DevOps lifecycle — from build, through QA and to deployment into production. This allows for better collaboration between security and the DevOps teams right from the start, and enables faster deployment into production while ensuring that the development and production environments are always secure and compliant.
 
-When making changes to AlgoSec BusinessFlow applications or flows, include `algosec_apply_draft` in your manifest, or execute the `apply_drafts` task. You must do this before the changes are applied for further processing in AlgoSec FireFlow. 
+This module implements the 'Connectivity as Code' approach. It allows application developers to define their application's connectivity requirements as a manifest file, describing the required flows in an abstract way - from point A to point B with port P. Then, the module facilitate a connection to the AlgoSec server and automatically translate these abstract application flows to the underlying network infrastructure. AlgoSec assess which security constructs - firewalls, routers, cloud or SDN security groups, etc. - are in the path, and automatically design the required changes, while ensuring regulatory and corporate compliance is retained. 
 
-The module provides a Puppet task to manually `apply_drafts` which will apply outstanding application drafts for all the managed applications.
-
-The module is intended to manage __all__ applications on BusinessFlow unless configured to manage only specific applications. When it is configured to manage only specific list of applications, it is avoiding __ANY__ changes to unmanaged applications. To configure managed applications, see the [Getting started with AlgoSec](#getting-started-with-algosec) section.  
-
-__NOTE__: Be very careful to define the managed applications when using the automatic __purge__ metadata option to make sure you don't accident delete all of your apps :)
+The module leverages AlgoSec BusinessFlow for application connectivity management, and (indirectly) AlgoSec FireFlow for automated zero-touch security policy change management. This turns network security and connectivity to be DevOps-friendly, and no longer a bottleneck to business agility.
 
 ## Setup
 
@@ -99,17 +95,27 @@ The repo's acceptance test examples contain a [useful reference](https://github.
 
 ### Puppet Device
 
+#### Simple Usage
 To get information from the device, use the `puppet device --resource` command. For example, to retrieve available BusinessFlow applications on the AlgoSec server, run the following:
 
 `puppet device --resource --target local.algosec.com algosec_flow`
 
-To create a application, write a manifest. Start by making a file named `manifest.pp` with the following content:
+__Note__: This will fetch all applications if no `managed_applications` were defined in the device config. Otherwise, only managed applications will be fetched.
+
+To manage one application and it's flows, write a manifest. Start by making a file named `manifest.pp` with the following content:
 
 ```
 algosec_application { 'some-application':
   ensure => 'present',
-}
+} -> algosec_flow {
+   'some-application/some flow name':
+     sources      => ['192.168.1.1', '10.0.0.1/16'],
+     destinations => ['192.168.2.2', '10.0.0.2/16'],
+     services     => ['HTTP', 'tcp/456'];
+ }
 ```
+
+Once this manifest is executed, puppet will ensure that both this application exists and that the flow with this name defined within it with the attributes defined here.
 
 __Note__: The `algosec_application` resource currently support only name attribute. Wider support for other application attributes is planned.
 
@@ -122,6 +128,46 @@ This will apply the manifest. Puppet will check if the address already exists an
 `puppet device --resource --target local.algosec.com algosec_application`
 
 Note that if you get errors, run the above commands with `--verbose` - this will give you error message output.
+
+#### Applying application drafts
+
+Any changes to AlgoSec BusinessFlow's applications and flows made by puppet through AlgoSec's API will be first staged in what is called application drafts. In that mode, no changes are propagated down the pipeline (e.g. changes will not propagate to AlgoSec FireFlow). Changes will be made "active" when the application draft is applied.
+
+Automatically applying the application drafts following the changes occur by puppet is possible using the `algosec_apply_draft` resource. This resource is defined within the manifest file and is always defined in the same way. This resource is set to automatically run after all other `algosec` resources are applied upon the AlgoSec server. To use it, simply add this resource definition to your manifest file:
+
+```
+algosec_apply_draft {
+  'apply':
+    apply => true
+}
+```
+
+#### Unmanaged Flows / Applications
+
+Experienced Puppet users will notice that the previous example will only `ensure` that the managed resources exist on AlgoSec BusinessFlow as defined in the `manifest.pp`. 
+
+This section is intended to help users who wish to configure puppet in a way that the flows/applications on AlgoSec will exclusively match those defined in the `manifest.pp` file. Such a configuration will cause the previous example to not just make sure the defined flow is present, but to also __delete__ all flows which are not defined in the `manifest.pp` file and are currently defined on the server.
+
+__Note__: Again, please be _very_ careful to define the `managed_applications` in the device config when using the automatic __purge__ metadata option. Otherwise, __ALL__ all flows/apps which are not defined in your manifest will be deleted from BusinessFlow.
+
+To properly configure puppet we use the built-in puppet [purge](https://puppet.com/docs/puppet/5.3/types/resources.html#resources-attribute-purge) method. A good working example for a manifest that trigger deletion of all undefined flows can be found in the module's [acceptance tests](https://github.com/algosec/algosec-puppet/blob/master/spec/fixtures/autodelete_flows.pp)
+
+To take from our previous example in this README, a manifest that will delete all flows which are not defined in it will look like this:
+
+```
+resources { 'algosec_flow':
+  purge => true
+}
+
+algosec_application { 'some-application':
+  ensure => 'present',
+} -> algosec_flow {
+   'some-application/some flow name':
+     sources      => ['192.168.1.1', '10.0.0.1/16'],
+     destinations => ['192.168.2.2', '10.0.0.2/16'],
+     services     => ['HTTP', 'tcp/456'];
+ }
+```
 
 ### Tasks
 
@@ -142,7 +188,7 @@ For full type reference documentation, see the [REFERENCE.md](https://github.com
 
 ## Limitations
 
-This module has only been tested with AlgoSec 2017.2.0 and 2017.3.0
+This module has only been tested with AlgoSec 2017.2 and up.
 
 ## Development
 

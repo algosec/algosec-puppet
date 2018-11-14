@@ -51,7 +51,7 @@ describe 'basic algosec config' do
         end
 
         context 'when removing resources' do
-          let(:args) { '--apply spec/fixtures/autodelete_application_and_flows.pp' }
+          let(:args) { '--apply spec/fixtures/autodelete_flows.pp' }
           let(:delete_app_flow1) { "Deleting application flow 'puppet-test-application/flow with no optional fields defined'" }
           let(:delete_app_flow2) { "Deleting application flow 'puppet-test-application/flow with the application defined in the title'" }
 

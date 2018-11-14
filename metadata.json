@@ -1,6 +1,6 @@
 {
   "name": "AlgoSec-algosec",
-  "version": "0.1.0",
+  "version": "0.1.1",
   "author": "Almog Cohen <almog.cohen@algosec.com>",
   "summary": "DevOps-ify network security management, leveraging AlgoSec's business-driven security policy management solution",
   "license": "MIT",

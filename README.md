@@ -18,15 +18,11 @@
 
 ## Module Description
 
-The AlgoSec module configures BusinessFlow applications and flows on AlgoSec version 2017.2.0 and up.
+Through its application-centric approach, AlgoSec extends security policy management into existing DevOps practices and tools to support the entire DevOps lifecycle — from build, through QA and to deployment into production. This allows for better collaboration between security and the DevOps teams right from the start, and enables faster deployment into production while ensuring that the development and production environments are always secure and compliant.
 
-When making changes to AlgoSec BusinessFlow applications or flows, include `algosec_apply_draft` in your manifest, or execute the `apply_drafts` task. You must do this before the changes are applied for further processing in AlgoSec FireFlow. 
+This module implements the 'Connectivity as Code' approach. It allows application developers to define their application's connectivity requirements as a manifest file, describing the required flows in an abstract way - from point A to point B with port P. Then, the module facilitate a connection to the AlgoSec server and automatically translate these abstract application flows to the underlying network infrastructure. AlgoSec assess which security constructs - firewalls, routers, cloud or SDN security groups, etc. - are in the path, and automatically design the required changes, while ensuring regulatory and corporate compliance is retained. 
 
-The module provides a Puppet task to manually `apply_drafts` which will apply outstanding application drafts for all the managed applications.
-
-The module is intended to manage __all__ applications on BusinessFlow unless configured to manage only specific applications. When it is configured to manage only specific list of applications, it is avoiding __ANY__ changes to unmanaged applications. To configure managed applications, see the [Getting started with AlgoSec](#getting-started-with-algosec) section.  
-
-__NOTE__: Be very careful to define the managed applications when using the automatic __purge__ metadata option to make sure you don't accident delete all of your apps :)
+The module leverages AlgoSec BusinessFlow for application connectivity management, and (indirectly) AlgoSec FireFlow for automated zero-touch security policy change management. This turns network security and connectivity to be DevOps-friendly, and no longer a bottleneck to business agility.
 
 ## Setup
 
@@ -192,7 +188,7 @@ For full type reference documentation, see the [REFERENCE.md](https://github.com
 
 ## Limitations
 
-This module has only been tested with AlgoSec 2017.2.0 and 2017.3.0
+This module has only been tested with AlgoSec 2017.2 and up.
 
 ## Development
 

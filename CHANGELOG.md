@@ -7,6 +7,7 @@ All notable changes to this project will be documented in this file.
 **Features**
 
 - Add resource-api dependency to `metadata.json` to allow usage of the `algosec::server` and `algosec::agent` classes shipped with this module.
+- Improve README usage examples
 
 **Bugfixes**
 

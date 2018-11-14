@@ -99,17 +99,27 @@ The repo's acceptance test examples contain a [useful reference](https://github.
 
 ### Puppet Device
 
+#### Simple Usage
 To get information from the device, use the `puppet device --resource` command. For example, to retrieve available BusinessFlow applications on the AlgoSec server, run the following:
 
 `puppet device --resource --target local.algosec.com algosec_flow`
 
-To create a application, write a manifest. Start by making a file named `manifest.pp` with the following content:
+__Note__: This will fetch all applications if no `managed_applications` were defined in the device config. Otherwise, only managed applications will be fetched.
+
+To manage one application and it's flows, write a manifest. Start by making a file named `manifest.pp` with the following content:
 
 ```
 algosec_application { 'some-application':
   ensure => 'present',
-}
+} -> algosec_flow {
+   'some-application/some flow name':
+     sources      => ['192.168.1.1', '10.0.0.1/16'],
+     destinations => ['192.168.2.2', '10.0.0.2/16'],
+     services     => ['HTTP', 'tcp/456'];
+ }
 ```
+
+Once this manifest is executed, puppet will ensure that both this application exists and that the flow with this name defined within it with the attributes defined here.
 
 __Note__: The `algosec_application` resource currently support only name attribute. Wider support for other application attributes is planned.
 
@@ -122,6 +132,46 @@ This will apply the manifest. Puppet will check if the address already exists an
 `puppet device --resource --target local.algosec.com algosec_application`
 
 Note that if you get errors, run the above commands with `--verbose` - this will give you error message output.
+
+#### Applying application drafts
+
+Any changes to AlgoSec BusinessFlow's applications and flows made by puppet through AlgoSec's API will be first staged in what is called application drafts. In that mode, no changes are propagated down the pipeline (e.g. changes will not propagate to AlgoSec FireFlow). Changes will be made "active" when the application draft is applied.
+
+Automatically applying the application drafts following the changes occur by puppet is possible using the `algosec_apply_draft` resource. This resource is defined within the manifest file and is always defined in the same way. This resource is set to automatically run after all other `algosec` resources are applied upon the AlgoSec server. To use it, simply add this resource definition to your manifest file:
+
+```
+algosec_apply_draft {
+  'apply':
+    apply => true
+}
+```
+
+#### Unmanaged Flows / Applications
+
+Experienced Puppet users will notice that the previous example will only `ensure` that the managed resources exist on AlgoSec BusinessFlow as defined in the `manifest.pp`. 
+
+This section is intended to help users who wish to configure puppet in a way that the flows/applications on AlgoSec will exclusively match those defined in the `manifest.pp` file. Such a configuration will cause the previous example to not just make sure the defined flow is present, but to also __delete__ all flows which are not defined in the `manifest.pp` file and are currently defined on the server.
+
+__Note__: Again, please be _very_ careful to define the `managed_applications` in the device config when using the automatic __purge__ metadata option. Otherwise, __ALL__ all flows/apps which are not defined in your manifest will be deleted from BusinessFlow.
+
+To properly configure puppet we use the built-in puppet [purge](https://puppet.com/docs/puppet/5.3/types/resources.html#resources-attribute-purge) method. A good working example for a manifest that trigger deletion of all undefined flows can be found in the module's [acceptance tests](https://github.com/algosec/algosec-puppet/blob/master/spec/fixtures/autodelete_flows.pp)
+
+To take from our previous example in this README, a manifest that will delete all flows which are not defined in it will look like this:
+
+```
+resources { 'algosec_flow':
+  purge => true
+}
+
+algosec_application { 'some-application':
+  ensure => 'present',
+} -> algosec_flow {
+   'some-application/some flow name':
+     sources      => ['192.168.1.1', '10.0.0.1/16'],
+     destinations => ['192.168.2.2', '10.0.0.2/16'],
+     services     => ['HTTP', 'tcp/456'];
+ }
+```
 
 ### Tasks
 
